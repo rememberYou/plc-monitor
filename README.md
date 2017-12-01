@@ -1,6 +1,4 @@
-PLCMonitor
-
-[![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+PLCMonitor [![Build Status](https://travis-ci.com/rememberYou/plc-monitor.svg?token=sjLP3RUsAiPEGzVPoYyH&branch=master)](https://travis-ci.com/rememberYou/plc-monitor) [![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 ===============================
 
 PLCMonitor is an Android Open Source application using Material Design for
