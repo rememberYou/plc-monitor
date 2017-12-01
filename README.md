@@ -1,4 +1,6 @@
 PLCMonitor
+
+[![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 ===============================
 
 PLCMonitor is an Android Open Source application using Material Design for
@@ -22,3 +24,7 @@ usually do.
 * [`Espresso v2.2.2`](https://developer.android.com/training/testing/espresso/index.html/)
 * [`OrmLite v5.0`](http://ormlite.com/)
 * [`jUnit v4.12`](http://junit.org/junit4/)
+
+### License ###
+
+Code is under the [Apache License v2](https://www.apache.org/licenses/LICENSE-2.0.txt).

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_connect"
+            android:icon="@drawable/ic_flash_on_black_24dp"
+            android:title="Connect" />
+        <item
+            android:id="@+id/nav_overview"
+            android:icon="@drawable/ic_dashboard_black_24dp"
+            android:title="Overview" />
+        <item
+            android:id="@+id/nav_station_info"
+            android:icon="@drawable/ic_info_outline_black_24dp"
+            android:title="Station Info" />
+        <item
+            android:id="@+id/nav_trend_view"
+            android:icon="@drawable/ic_trending_up_black_24dp"
+            android:title="Trend View" />
+        <item
+            android:id="@+id/about"
+            android:icon="@drawable/ic_copyright_black_24dp"
+            android:title="About" />
+    </group>
+
+    <item android:title="Account">
+        <menu>
+            <item
+                android:id="@+id/nav_settings"
+                android:icon="@drawable/ic_settings_black_24dp"
+                android:title="Settings" />
+            <item
+                android:id="@+id/nav_sign_off"
+                android:icon="@drawable/ic_power_settings_new_black_24dp"
+                android:title="Sign Out" />
+        </menu>
+    </item>
+
+</menu>

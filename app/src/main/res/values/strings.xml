@@ -1,0 +1,147 @@
+<resources>
+    <string name="app_name">PLCMonitor</string>
+
+    <string name="action_back">Back</string>
+
+    <!-- Strings related to login/register -->
+    <string name="action_register">Register</string>
+    <string name="action_sign_in">Sign in</string>
+
+    <string name="dialog_privacy_policy">
+        <![CDATA[
+            <p>
+                PLCMonitor does not share personal information
+                of any kind with anyone. We will not sell or rent
+                your name or personal information to any third
+                party. We <strong>DO NOT</strong> sell, rent or provide
+                outside access to our mailing list or any data we store.
+                Any data that a user stores via our facilities is wholly
+                owned by that user or business. At any time a user
+                or business is free to take their data and leave, or
+                to simply delete their data from our facilities.
+            </p>
+            <p>
+                PLCMonitor only collects such personal
+                information that is necessary for you to access and
+                use our services. This personal information
+                includes first name, last name, and email address.
+            </p>
+            <p>
+                PLCMonitor may release personal information if
+                PLCMonitor is required to by law, search warrant,
+                subpoena, court order or fraud investigation. We may
+                also use personal information in a manner that does
+                not identify you specifically nor allow you to be
+                contacted but does identify certain criteria about
+                our application\'s users in general (such as we may
+                inform third parties about the number of registered
+                users, number of times the application has been download).
+            </p>
+        ]]>
+    </string>
+    <string name="dialog_terms_use">
+        <![CDATA[
+            <h5><font color="#26A69A">1. General Terms</font></h5>
+            <p>
+                <strong>1.1</strong> By accessing and placing an order with
+                PLCMonitor, you confirm that you are in agreement with
+                and bound by the terms and conditions contained in the Terms
+                Of Use outlined below. These terms apply to the entire
+                application and any email or other type of communication between
+                you and PLCMonitor.
+            </p>
+            <h5><font color="#26A69A">2. Ownership</font></h5>
+            <p>
+                <strong>2.1</strong> Ownership of the product is governed by
+                the usage license selected by the seller.
+            </p>
+            <h5><font color="#26A69A">3. Changes to terms</font></h5>
+            <p>
+                <strong>3.1</strong> If we change our terms of use we will post
+                those changes on this page. Registered users will be sent an email
+                that outlines changes made to the terms of use.
+            </p>
+        ]]>
+    </string>
+
+    <string name="error_field_required">This field is required</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_incorrect_password_confirm">The password doesn\'t match</string>
+    <string name="error_incorrect_email">This email doesn\'t exist</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_firstname">This first name is invalid</string>
+    <string name="error_invalid_lastname">This last name is invalid</string>
+    <string name="error_invalid_password">This password must contain at least 4 characters</string>
+    <string name="error_invalid_term_privacy">You must accept the Terms of Use and Privacy Policy</string>
+    <string name="error_unique_email">This email address is already registered</string>
+
+    <string name="message_disconnect">Account disconnected with success!</string>
+    <string name="message_welcome">Hello, %s!</string>
+
+    <string name="prompt_about">About</string>
+    <string name="prompt_before_terms_use">I agree to</string>
+    <string name="prompt_between_terms_privacy">and </string>
+    <string name="prompt_email">E-Mail Address</string>
+    <string name="prompt_firstname">First Name</string>
+    <string name="prompt_lastname">Last Name</string>
+    <string name="prompt_password">Password</string>
+    <string name="prompt_password_confirm">Confirm Password</string>
+    <string name="prompt_privacy_policy">Privacy Policy</string>
+    <string name="prompt_register">Not account yet? Sign up!</string>
+    <string name="prompt_sign_in">Already register? Sign in!</string>
+    <string name="prompt_successful_creation">Account created with success!</string>
+    <string name="prompt_terms_use">Terms of Use</string>
+
+    <!-- Strings related to main -->
+    <string name="dialog_about">
+        <![CDATA[
+            <h5><font color="#26A69A">1. Introduction</font></h5>
+            <p>
+                PLCMonitor is an application for remote monitoring and control
+                of various industrial processes.
+            </p>
+            <p>
+                This application was developed by Terencio Agozzino, licensed
+                under the Apache License, Version 2.0.
+            </p>
+            <p>
+                Free of you to contribute to the application on GitHub: <br>
+                (<a href="https://github.com/rememberYou/plcmonitor" alt="GitHub link>
+                    <font color="#26A69A">https://github.com/rememberYou/plc-monitor</font>
+                 </a>)
+            </p>
+            <h5><font color="#26A69A">2. Connection to a PLC</font></h5>
+            <p>
+                The connection to a PLC required to enter three parameters: <br>
+
+                1. IP address (e.g. <strong>10.1.0.120</strong>) <br>
+                2. Rack (e.g. <strong>1</strong>) <br>
+                3. Slot (e.g. <strong>1</strong>) <br>
+            </p>
+            <h5><font color="#26A69A">3. Overview of PLC</font></h5>
+            <p>
+                The overview allows you to easily manage your PLCs by changing
+                their various connection settings, logging in to them again
+                without entering the connection credentials or simply deleting them.
+            </p>
+            <h5><font color="#26A69A">4. Station Info</font></h5>
+            <p>
+               This is where you will be able to control your industrial
+               processes by starting or stopping the PLC, execute various
+               functions or retrieve details about it.
+            </p>
+            <h5><font color="#26A69A">5. Trend View</font></h5>
+            <p>
+               Allows industrial process monitoring by providing analog signal
+               analysis of the PLC.
+            </p>
+        ]]>
+    </string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="prompt_name">%1$s %2$s</string>
+
+    <string name="message_welcome_back">Welcome back, %s!</string>
+</resources>

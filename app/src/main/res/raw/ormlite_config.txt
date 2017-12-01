@@ -1,0 +1,65 @@
+# --table-start--
+dataClass=be.heh.plcmonitor.model.User
+tableName=user
+# --table-fields-start--
+# --field-start--
+fieldName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=firstName
+columnName=firstname
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=lastName
+columnName=lastname
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=email
+columnName=email
+canBeNull=false
+unique=true
+indexName=user_email_idx
+# --field-end--
+# --field-start--
+fieldName=password
+columnName=password
+canBeNull=false
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=be.heh.plcmonitor.model.Plc
+tableName=plc
+# --table-fields-start--
+# --field-start--
+fieldName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=name
+columnName=name
+canBeNull=false
+unique=true
+# --field-end--
+# --field-start--
+fieldName=ip
+columnName=ip
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=rack
+columnName=rack
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=slot
+columnName=slot
+canBeNull=false
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
