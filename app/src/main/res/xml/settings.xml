@@ -1,0 +1,49 @@
+<android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <android.support.v7.preference.PreferenceCategory
+        android:title="General">
+
+        <android.support.v7.preference.CheckBoxPreference
+            android:key="autoCheck"
+            android:title="Remember me"
+            android:summary="Stay logged in when the application is closed"
+            android:defaultValue="true"/>
+
+    </android.support.v7.preference.PreferenceCategory>
+
+    <android.support.v7.preference.PreferenceCategory
+        android:title="Account">
+
+        <android.support.v7.preference.EditTextPreference
+            android:key="firstName"
+            android:title="First Name"
+            android:summary="First Name Summary"
+            android:dialogMessage="Editing your First Name"
+            android:singleLine="true"/>
+
+         <android.support.v7.preference.EditTextPreference
+             android:key="lastName"
+             android:title="Last Name"
+             android:summary="Last Name Summary"
+             android:dialogMessage="Editing your Last Name"
+             android:singleLine="true"/>
+
+         <android.support.v7.preference.EditTextPreference
+             android:key="email"
+             android:title="E-Mail Address"
+             android:summary="E-Mail Address Summary"
+             android:dialogMessage="Be careful, if you enter an invalid email,
+                                    you will not be able to log in again to
+                                    your account."
+             android:singleLine="true"/>
+
+        <android.support.v7.preference.EditTextPreference
+            android:key="password"
+            android:title="Password"
+            android:summary="Should be a number password input (it is now!)"
+            android:dialogMessage="This is the dialog\'s message" />
+
+    </android.support.v7.preference.PreferenceCategory>
+
+</android.support.v7.preference.PreferenceScreen>

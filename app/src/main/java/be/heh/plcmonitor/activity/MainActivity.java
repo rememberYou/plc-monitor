@@ -17,12 +17,12 @@
 package be.heh.plcmonitor.activity;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.text.Html;
 import android.transition.Fade;
 import android.view.View;
@@ -36,13 +36,19 @@ import android.widget.TextView;
 import be.heh.plcmonitor.ApplicationComponent;
 import be.heh.plcmonitor.DaggerApplicationComponent;
 import be.heh.plcmonitor.R;
-import be.heh.plcmonitor.database.DatabaseHelper;
+import be.heh.plcmonitor.dao.UserDaoImpl;
 import be.heh.plcmonitor.database.DatabaseModule;
+import be.heh.plcmonitor.fragment.ConnectionFragment;
+import be.heh.plcmonitor.fragment.OverviewFragment;
+import be.heh.plcmonitor.fragment.SettingsFragment;
 import be.heh.plcmonitor.model.User;
+import be.heh.plcmonitor.widget.Message;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import javax.inject.Inject;
+
+import static android.support.design.widget.Snackbar.LENGTH_LONG;
 
 /**
  * Main screen of the application.
@@ -57,10 +63,16 @@ public class MainActivity extends Activity
      */
     public static final int INIT = 1;
 
-    @Inject
-    DatabaseHelper databaseHelper;
-
+    /**
+     * Components.
+     */
     ApplicationComponent applicationComponent;
+
+    /**
+     * Injections.
+     */
+    @Inject
+    UserDaoImpl userDaoImpl;
 
     /**
      * Logged user.
@@ -75,9 +87,11 @@ public class MainActivity extends Activity
     /**
      * UI references.
      */
+    private MaterialDialog mAboutDialog;
     private TextView mEmailView;
     private TextView mNameView;
-    private MaterialDialog mAboutDialog;
+    private View mCoordinatorLayoutView;
+    private NavigationView navigationView;
 
     /**
      * Called when the activity is starting.
@@ -97,11 +111,9 @@ public class MainActivity extends Activity
         applicationComponent = DaggerApplicationComponent.builder()
                 .databaseModule(new DatabaseModule(this))
                 .build();
-
         applicationComponent.inject(this);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -109,7 +121,7 @@ public class MainActivity extends Activity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         View headerLayout = navigationView.getHeaderView(0);
@@ -123,28 +135,34 @@ public class MainActivity extends Activity
 
         mAboutDialog = mTermsUseBuilder.build();
 
+        mCoordinatorLayoutView = findViewById(R.id.snackbarPosition);
+
         sp = getSharedPreferences("login", MODE_PRIVATE);
         final boolean logged = sp.getBoolean("logged", false);
 
         if (logged) {
-            user = new User(sp.getString("firstName", ""),
-                            sp.getString("lastName", ""),
-                            sp.getString("email", ""),
-                            sp.getString("password", ""));
+            user = new User(
+                    sp.getString("firstName", ""),
+                    sp.getString("lastName", ""),
+                    sp.getString("email", ""),
+                    sp.getString("password", ""));
 
             mNameView.setText(getString(R.string.prompt_name,
-                                user.getFirstName().toUpperCase(),
-                                user.getLastName().toUpperCase()));
+                    user.getFirstName().toUpperCase(),
+                    user.getLastName().toUpperCase()));
             mEmailView.setText(user.getEmail());
 
-            displayMessage(getString(R.string.message_welcome_back, user.getFirstName()));
+            Message.display(mCoordinatorLayoutView,
+                    Html.fromHtml(getString(R.string.message_welcome_back,
+                            user.getFirstName())),
+                    LENGTH_LONG);
         } else {
-            startActivityForResult(new Intent(MainActivity.this,
-                    LoginActivity.class), INIT);
+            startActivityForResult(new Intent(this, LoginActivity.class), INIT);
         }
+
+        navigationView.setCheckedItem(R.id.nav_overview);
+        onNavigationItemSelected(navigationView.getMenu().getItem(1));
     }
-
-
     /**
      * Specifies if an account has been logged.
      *
@@ -158,12 +176,23 @@ public class MainActivity extends Activity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == INIT && resultCode == RESULT_OK) {
-            user = data.getParcelableExtra("user");
+            user = new User(
+                    sp.getString("firstName", ""),
+                    sp.getString("lastName", ""),
+                    sp.getString("email", ""),
+                    sp.getString("password", ""));
+
             mNameView.setText(getString(R.string.prompt_name,
                     user.getFirstName(), user.getLastName()));
             mEmailView.setText(user.getEmail());
 
-            displayMessage(getString(R.string.message_welcome, user.getFirstName()));
+            Message.display(mCoordinatorLayoutView,
+                    Html.fromHtml(getString(R.string.message_welcome,
+                            user.getFirstName())),
+                    LENGTH_LONG);
+
+            navigationView.setCheckedItem(R.id.nav_overview);
+            onNavigationItemSelected(navigationView.getMenu().getItem(1));
         }
     }
 
@@ -193,46 +222,64 @@ public class MainActivity extends Activity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+        Fragment fragment = null;
+        Class fragmentClass;
+
         if (id == R.id.nav_connect) {
+            fragmentClass = ConnectionFragment.class;
 
+            try {
+                fragment = (Fragment) fragmentClass.newInstance();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.snackbarPosition, fragment)
+                    .commit();
         } else if (id == R.id.nav_overview) {
+            fragmentClass = OverviewFragment.class;
 
+            try {
+                fragment = (Fragment) fragmentClass.newInstance();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.snackbarPosition, fragment)
+                    .commit();
         } else if (id == R.id.nav_station_info) {
 
         } else if (id == R.id.nav_trend_view) {
-
         } else if (id == R.id.about) {
             mAboutDialog.show();
         } else if (id == R.id.nav_settings) {
-            
+            fragmentClass = SettingsFragment.class;
+
+            try {
+                fragment = (Fragment) fragmentClass.newInstance();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.snackbarPosition, fragment).commit();
         } else if (id == R.id.nav_sign_off) {
             signOff();
-            startActivity(new Intent(MainActivity.this,
-                    LoginActivity.class));
-            displayMessage(getString(R.string.message_disconnect));
+            startActivityForResult(new Intent(MainActivity.this,
+                    LoginActivity.class), INIT);
+
+           // startActivity(new Intent(MainActivity.this,
+           //         LoginActivity.class));
+
+            Message.display(mCoordinatorLayoutView,
+                    getString(R.string.message_disconnect), LENGTH_LONG);
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    /**
-     * Display a message with a Snackbar.
-     *
-     * @param message the message to display
-     */
-    public void displayMessage(String message) {
-        View coordinatorLayoutView = findViewById(R.id.snackbarPosition);
-
-        Snackbar mSnackbar = Snackbar.make(coordinatorLayoutView, message,
-                Snackbar.LENGTH_LONG);
-
-        View mView = mSnackbar.getView();
-        TextView mTextView = mView.findViewById(android.support.design.R.id.snackbar_text);
-        mTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-
-        mSnackbar.show();
     }
 
     /**

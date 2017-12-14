@@ -43,6 +43,7 @@
                     android:id="@+id/actv_login_email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
                     android:hint="@string/prompt_email"
                     android:inputType="textEmailAddress"
                     android:maxLines="1"
@@ -76,8 +77,8 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/action_sign_in"
                 android:textStyle="bold"
-                android:background="@color/colorPrimary"
-                android:textColor="@color/colorWhite"/>
+                android:background="@color/primary"
+                android:textColor="@color/primary_text"/>
 
             <TextView
                 android:id="@+id/tv_register"
@@ -88,8 +89,8 @@
                 android:textSize="16dp"
                 android:elevation="5dp"
                 android:text="@string/prompt_register"
-                android:textColor="@color/colorPrimaryDark"/>
-
+                android:textColor="@color/primary"/>
         </LinearLayout>
+
     </ScrollView>
 </android.support.design.widget.CoordinatorLayout>

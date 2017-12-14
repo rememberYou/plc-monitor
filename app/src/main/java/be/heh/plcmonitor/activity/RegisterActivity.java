@@ -16,19 +16,17 @@
 
 package be.heh.plcmonitor.activity;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.text.Html;
 import android.text.TextUtils;
 import android.transition.Fade;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -45,6 +43,8 @@ import be.heh.plcmonitor.database.DatabaseHelper;
 import be.heh.plcmonitor.ApplicationComponent;
 import be.heh.plcmonitor.database.DatabaseModule;
 import be.heh.plcmonitor.model.User;
+import be.heh.plcmonitor.utils.Validator;
+import be.heh.plcmonitor.widget.Progress;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
@@ -60,24 +60,20 @@ import javax.inject.Inject;
 public class RegisterActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 
     /**
-     * Request codes.
+     * Components.
      */
-    public static final int REGISTER = 2;
+    ApplicationComponent applicationComponent;
 
+    /**
+     * Injections.
+     */
     @Inject
     UserDaoImpl userDaoImpl;
-
-    ApplicationComponent applicationComponent;
 
     /**
      * Keep track of the register task to ensure we can cancel it if requested.
      */
     private UserRegisterTask mRegisterTask = null;
-
-    /**
-     * Building a bundle to manage transitions between the activities.
-     */
-    private ActivityOptions options;
 
     /**
      * UI references.
@@ -105,16 +101,12 @@ public class RegisterActivity extends OrmLiteBaseActivity<DatabaseHelper> {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setupWindowAnimations();
         setContentView(R.layout.activity_register);
 
         applicationComponent = DaggerApplicationComponent.builder()
                 .databaseModule(new DatabaseModule(this))
                 .build();
-
         applicationComponent.inject(this);
-
-        options = ActivityOptions.makeSceneTransitionAnimation(RegisterActivity.this);
 
         mEmailView = findViewById(R.id.actv_register_email);
 
@@ -185,8 +177,7 @@ public class RegisterActivity extends OrmLiteBaseActivity<DatabaseHelper> {
             @Override
             public void onClick(View v) {
                 setResult(Activity.RESULT_CANCELED);
-                startActivityForResult(new Intent(RegisterActivity.this,
-                        LoginActivity.class), REGISTER, options.toBundle());
+                finish();
             }
         });
 
@@ -222,18 +213,11 @@ public class RegisterActivity extends OrmLiteBaseActivity<DatabaseHelper> {
     }
 
     /**
-     * Provides animations of window fades for exits of the Activity when it
-     * has detected the user's press of the back key.
-     *
-     * Without override this method, animation does not occur normally.
+     * If not override, it will starts a LoginActivity when the user pressed
+     * the back button.
      */
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        setResult(Activity.RESULT_CANCELED);
-        startActivityForResult(new Intent(RegisterActivity.this,
-                LoginActivity.class), REGISTER, options.toBundle());
-    }
+    public void onBackPressed() { finish();  }
 
     /**
      * Attempts to register the account specified by the register form.
@@ -267,7 +251,7 @@ public class RegisterActivity extends OrmLiteBaseActivity<DatabaseHelper> {
             mFirstNameView.setError(getString(R.string.error_field_required));
             focusView = mFirstNameView;
             cancel = true;
-        } else if (!isValidName(firstName)) {
+        } else if (!Validator.isValidName(firstName)) {
             mFirstNameView.setError(getString(R.string.error_invalid_firstname));
             focusView = mFirstNameView;
             cancel = true;
@@ -278,7 +262,7 @@ public class RegisterActivity extends OrmLiteBaseActivity<DatabaseHelper> {
             mLastNameView.setError(getString(R.string.error_field_required));
             focusView = mLastNameView;
             cancel = true;
-        } else if (!isValidName(lastName)) {
+        } else if (!Validator.isValidName(lastName)) {
             mLastNameView.setError(getString(R.string.error_invalid_lastname));
             focusView = mLastNameView;
             cancel = true;
@@ -289,7 +273,7 @@ public class RegisterActivity extends OrmLiteBaseActivity<DatabaseHelper> {
             mEmailView.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             cancel = true;
-        } else if (!isValidEmail(email)) {
+        } else if (!Validator.isValidEmail(email)) {
             mEmailView.setError(getString(R.string.error_invalid_email));
             focusView = mEmailView;
             cancel = true;
@@ -304,7 +288,7 @@ public class RegisterActivity extends OrmLiteBaseActivity<DatabaseHelper> {
             mPasswordView.setError(getString(R.string.error_field_required));
             focusView = mPasswordView;
             cancel = true;
-        } else if (!isValidPassword(password)) {
+        } else if (!Validator.isValidPassword(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
@@ -323,7 +307,8 @@ public class RegisterActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 
         // Check for Terms of Use and Privacy Policy.
        if (!mTermsPrivacyView.isChecked()) {
-            mTermsPrivacyView.setButtonTintList(getResources().getColorStateList(R.color.colorRed));
+            mTermsPrivacyView.setButtonTintList(getResources()
+                    .getColorStateList(R.color.accent));
             focusView = mTermsPrivacyView;
             cancel = true;
        }
@@ -335,7 +320,9 @@ public class RegisterActivity extends OrmLiteBaseActivity<DatabaseHelper> {
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user register attempt.
-            showProgress(true);
+            Progress.show(mRegisterFormView, mProgressView,
+                    getResources().getInteger(android.R.integer.config_shortAnimTime),
+                    true);
             mRegisterTask = new UserRegisterTask(firstName, lastName, email, password);
             mRegisterTask.execute((Void) null);
         }
@@ -349,76 +336,6 @@ public class RegisterActivity extends OrmLiteBaseActivity<DatabaseHelper> {
      */
     private boolean isRegisteredEmail(String email) {
         return userDaoImpl.getUserByEmail(email) != null;
-    }
-
-    /**
-     * Specifies the validation of a first name and a last name.
-     *
-     * @param name the name of the user
-     * @return true if the name is a valid one; false otherwise
-     */
-    private boolean isValidName(String name) {
-        return name.matches("^([A-Za-z]+)(\\s[A-Za-z]+)*\\s?$");
-    }
-
-    /**
-     * Specifies the validation of an email address.
-     *
-     * @param email the email address of the user
-     * @return true if the email is a valid one; false otherwise
-     */
-    private boolean isValidEmail(String email) {
-        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
-    }
-
-    /**
-     * Specifies the validation of a password.
-     *
-     * @param password the password of the user
-     * @return true if the password is a valid one; false otherwise.
-     */
-    private boolean isValidPassword(String password) {
-        return password.length() >= 4;
-    }
-
-    /**
-     * Set up animations of window fades for entrances and exits of the
-     * Activity.
-     */
-    private void setupWindowAnimations() {
-        getWindow().setEnterTransition(new Fade().setDuration(1000));
-    }
-
-    /**
-     * Shows the progress UI and hides the register form.
-     *
-     * On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-     * for very easy animations. If available, use these APIs to fade-in
-     * the progress spinner.
-     *
-     * @param show equals 1 if the login form is show; 0 otherwise.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
-        int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-        mRegisterFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        mRegisterFormView.animate().setDuration(shortAnimTime).alpha(
-                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mRegisterFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            }
-        });
-
-        mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-        mProgressView.animate().setDuration(shortAnimTime).alpha(
-                show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            }
-        });
     }
 
     /**
@@ -476,11 +393,12 @@ public class RegisterActivity extends OrmLiteBaseActivity<DatabaseHelper> {
         @Override
         protected void onPostExecute(final Boolean success) {
             mRegisterTask = null;
-            showProgress(false);
+            Progress.show(mRegisterFormView, mProgressView,
+                    getResources().getInteger(android.R.integer.config_shortAnimTime),
+                    false);
 
             setResult(Activity.RESULT_OK);
-            startActivityForResult(new Intent(RegisterActivity.this,
-                    LoginActivity.class), REGISTER, options.toBundle());
+            finish();
         }
 
         /**
@@ -490,7 +408,9 @@ public class RegisterActivity extends OrmLiteBaseActivity<DatabaseHelper> {
         @Override
         protected void onCancelled() {
             mRegisterTask = null;
-            showProgress(false);
+            Progress.show(mRegisterFormView, mProgressView,
+                    getResources().getInteger(android.R.integer.config_shortAnimTime),
+                    false);
         }
     }
 }

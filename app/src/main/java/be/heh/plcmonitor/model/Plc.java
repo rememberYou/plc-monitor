@@ -87,6 +87,7 @@ public class Plc implements Parcelable {
      * @param source the Parcel containing the PLC data
      */
     private Plc(Parcel source) {
+        this.id = source.readInt();
         this.name = source.readString();
         this.ip = source.readString();
         this.rack = source.readInt();
@@ -200,6 +201,7 @@ public class Plc implements Parcelable {
      */
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
         dest.writeString(name);
         dest.writeString(ip);
         dest.writeInt(rack);

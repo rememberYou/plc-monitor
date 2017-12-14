@@ -18,6 +18,7 @@ package be.heh.plcmonitor.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.j256.ormlite.field.DatabaseField;
 
@@ -88,6 +89,7 @@ public class User implements Parcelable {
      * @param source the Parcel containing the user data
      */
     private User(Parcel source) {
+        this.id = source.readInt();
         this.firstName = source.readString();
         this.lastName = source.readString();
         this.email = source.readString();
@@ -106,11 +108,9 @@ public class User implements Parcelable {
     /**
      * Sets the identifier of the user.
      *
-     * @param id the identifier of the user
+     * @param id the identifier of the PLC
      */
-    public void setId(int id) {
-        this.id = id;
-    }
+    public void setId(int id) { this.id = id; }
 
     /**
      * Gets the email address of the user.
@@ -226,6 +226,7 @@ public class User implements Parcelable {
      */
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
         dest.writeString(firstName);
         dest.writeString(lastName);
         dest.writeString(email);

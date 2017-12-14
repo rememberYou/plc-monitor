@@ -16,21 +16,16 @@
 
 package be.heh.plcmonitor.activity;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
+import android.text.Html;
 import android.text.TextUtils;
 import android.transition.Fade;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -47,10 +42,15 @@ import be.heh.plcmonitor.database.DatabaseHelper;
 import be.heh.plcmonitor.database.DatabaseModule;
 import be.heh.plcmonitor.ApplicationComponent;
 import be.heh.plcmonitor.model.User;
+import be.heh.plcmonitor.utils.Validator;
+import be.heh.plcmonitor.widget.Message;
+import be.heh.plcmonitor.widget.Progress;
 
 import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
 
 import javax.inject.Inject;
+
+import static android.support.design.widget.Snackbar.LENGTH_LONG;
 
 /**
  * A login screen that offers login via email/password.
@@ -62,16 +62,18 @@ public class LoginActivity extends OrmLiteBaseActivity<DatabaseHelper> {
     /**
      * Request codes.
      */
-    public static final int REGISTER = 2;
-    public static final int SIGN_OFF = 3;
+    public static final int INIT = 1;
 
-    @Inject
-    DatabaseHelper databaseHelper;
+    /**
+     * Components.
+     */
+    ApplicationComponent applicationComponent;
 
+    /**
+     * Injections.
+     */
     @Inject
     UserDaoImpl userDaoImpl;
-
-    ApplicationComponent applicationComponent;
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -90,6 +92,7 @@ public class LoginActivity extends OrmLiteBaseActivity<DatabaseHelper> {
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    private View mCoordinatorLayoutView;
 
     /**
      * Called when the activity is starting.
@@ -109,10 +112,7 @@ public class LoginActivity extends OrmLiteBaseActivity<DatabaseHelper> {
         applicationComponent = DaggerApplicationComponent.builder()
                 .databaseModule(new DatabaseModule(this))
                 .build();
-
         applicationComponent.inject(this);
-
-        options = ActivityOptions.makeSceneTransitionAnimation(LoginActivity.this);
 
         mEmailView = findViewById(R.id.actv_login_email);
 
@@ -127,6 +127,8 @@ public class LoginActivity extends OrmLiteBaseActivity<DatabaseHelper> {
                 return false;
             }
         });
+
+        mCoordinatorLayoutView = findViewById(R.id.snackbarPosition);
 
         Button mSignInButton = findViewById(R.id.btn_sign_in);
         mSignInButton.setOnClickListener(new OnClickListener() {
@@ -146,14 +148,12 @@ public class LoginActivity extends OrmLiteBaseActivity<DatabaseHelper> {
             public void onClick(View v) {
                 mEmailView.setText("");
                 mPasswordView.setText("");
+                options = ActivityOptions.makeSceneTransitionAnimation(LoginActivity.this);
+
                 startActivityForResult(new Intent(LoginActivity.this,
-                        RegisterActivity.class), REGISTER, options.toBundle());
+                        RegisterActivity.class), INIT, options.toBundle());
             }
         });
-
-        for (User user : userDaoImpl.getAll()) {
-            Log.i("TEST", user.toString());
-        }
     }
 
     /**
@@ -168,12 +168,18 @@ public class LoginActivity extends OrmLiteBaseActivity<DatabaseHelper> {
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REGISTER && resultCode == RESULT_OK) {
-            displayMessage(getString(R.string.prompt_successful_creation));
-        } else if (requestCode == SIGN_OFF && resultCode == RESULT_OK) {
-            displayMessage(getString(R.string.message_disconnect));
+        if (requestCode == INIT && resultCode == RESULT_OK) {
+            Message.display(mCoordinatorLayoutView,
+                    Html.fromHtml(getString(R.string.prompt_successful_creation)),
+                    LENGTH_LONG);
         }
     }
+
+    /**
+     * Prevents the user from returning to the MainActivity until logged in.
+     */
+    @Override
+    public void onBackPressed() { return; }
 
     /**
      * Attempts to sign in the account specified by the login form. If there
@@ -201,7 +207,7 @@ public class LoginActivity extends OrmLiteBaseActivity<DatabaseHelper> {
             mEmailView.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             cancel = true;
-        } else if (!isValidEmail(email)) {
+        } else if (!Validator.isValidEmail(email)) {
             mEmailView.setError(getString(R.string.error_invalid_email));
             focusView = mEmailView;
             cancel = true;
@@ -212,7 +218,7 @@ public class LoginActivity extends OrmLiteBaseActivity<DatabaseHelper> {
         }
 
         // Check for a valid password.
-        if (!TextUtils.isEmpty(password) && !isValidPassword(password)) {
+        if (!TextUtils.isEmpty(password) && !Validator.isValidPassword(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
@@ -225,28 +231,12 @@ public class LoginActivity extends OrmLiteBaseActivity<DatabaseHelper> {
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            showProgress(true);
+            Progress.show(mLoginFormView, mProgressView,
+                    getResources().getInteger(android.R.integer.config_shortAnimTime),
+                    true);
             mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
         }
-    }
-
-    /**
-     * Display a message with a Snackbar.
-     *
-     * @param message the message to display
-     */
-    public void displayMessage(String message) {
-        View coordinatorLayoutView = findViewById(R.id.snackbarPosition);
-
-        Snackbar mSnackbar = Snackbar.make(coordinatorLayoutView, message,
-                Snackbar.LENGTH_LONG);
-
-        View mView = mSnackbar.getView();
-        TextView mTextView = mView.findViewById(android.support.design.R.id.snackbar_text);
-        mTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-
-        mSnackbar.show();
     }
 
     /**
@@ -260,74 +250,11 @@ public class LoginActivity extends OrmLiteBaseActivity<DatabaseHelper> {
     }
 
     /**
-     * Specifies the validation of a connection.
-     *
-     * @param email the email address of the user
-     * @param password the password of the user
-     * @return true if the connection is a valid one; false otherwise
-     */
-    private boolean isValidConnection(String email, String password) {
-        return userDaoImpl.getUserByEmail(email).getPassword().equals(password);
-    }
-
-    /**
-     * Specifies the validation of an email address.
-     *
-     * @param email the email address of the user
-     * @return true if the email is a valid one; false otherwise
-     */
-    private boolean isValidEmail(String email) {
-        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
-    }
-
-    /**
-     * Specifies the validation of a password.
-     *
-     * @param password the password of the user
-     * @return true if the password is a valid one; false otherwise
-     */
-    private boolean isValidPassword(String password) {
-        return password.length() >= 4;
-    }
-
-    /**
      * Set up animations of window fades for entrances and exits of the
      * Activity.
      */
     private void setupWindowAnimations() {
         getWindow().setEnterTransition(new Fade().setDuration(1000));
-    }
-
-    /**
-     * Shows the progress UI and hides the login form.
-     *
-     * On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-     * for very easy animations. If available, use these APIs to fade-in
-     * the progress spinner.
-     *
-     * @param show equals 1 if the login form is show; 0 otherwise.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
-        int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-        mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            }
-        });
-
-        mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-        mProgressView.animate().setDuration(shortAnimTime).alpha(
-                show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            }
-        });
     }
 
     /**
@@ -365,7 +292,7 @@ public class LoginActivity extends OrmLiteBaseActivity<DatabaseHelper> {
                 return false;
             }
 
-            return isValidConnection(email, password);
+            return Validator.isValidConnection(userDaoImpl, email, password);
         }
 
         /**
@@ -377,12 +304,15 @@ public class LoginActivity extends OrmLiteBaseActivity<DatabaseHelper> {
         @Override
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
-            showProgress(false);
+            Progress.show(mLoginFormView, mProgressView,
+                    getResources().getInteger(android.R.integer.config_shortAnimTime),
+                    false);
 
             if (success) {
                 User user = userDaoImpl.getUserByEmail(email);
 
                 SharedPreferences sp = getSharedPreferences("login", MODE_PRIVATE);
+                sp.edit().putInt("id", user.getId()).apply();
                 sp.edit().putString("firstName", user.getFirstName()).apply();
                 sp.edit().putString("lastName", user.getLastName()).apply();
                 sp.edit().putString("email", user.getEmail()).apply();
@@ -394,8 +324,9 @@ public class LoginActivity extends OrmLiteBaseActivity<DatabaseHelper> {
                 // LoginActivity because it will switch back to
                 // RegisterActivity instead of MainActivity.
                 setResult(Activity.RESULT_OK);
-                startActivityForResult(new Intent(LoginActivity.this,
-                        MainActivity.class), REGISTER, options.toBundle());
+                finish();
+                //startActivityForResult(new Intent(LoginActivity.this,
+                 //       MainActivity.class), INIT, options.toBundle());
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
@@ -409,7 +340,9 @@ public class LoginActivity extends OrmLiteBaseActivity<DatabaseHelper> {
         @Override
         protected void onCancelled() {
             mAuthTask = null;
-            showProgress(false);
+            Progress.show(mLoginFormView, mProgressView,
+                    getResources().getInteger(android.R.integer.config_shortAnimTime),
+                    false);
         }
     }
 }

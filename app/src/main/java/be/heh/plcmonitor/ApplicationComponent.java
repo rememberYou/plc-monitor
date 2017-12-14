@@ -20,6 +20,7 @@ import be.heh.plcmonitor.activity.LoginActivity;
 import be.heh.plcmonitor.activity.MainActivity;
 import be.heh.plcmonitor.activity.RegisterActivity;
 
+import be.heh.plcmonitor.fragment.SettingsFragment;
 import dagger.Component;
 import be.heh.plcmonitor.database.DatabaseModule;
 
@@ -62,4 +63,6 @@ public interface ApplicationComponent {
      *                         password.
      */
     void inject(RegisterActivity registerActivity);
+
+    void inject(SettingsFragment settingsFragment);
 }
