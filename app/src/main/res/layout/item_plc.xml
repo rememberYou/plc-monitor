@@ -1,0 +1,97 @@
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/card_view"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:layout_marginTop="2dp"
+    android:layout_marginBottom="8dp"
+    android:layout_marginLeft="11dp"
+    android:layout_marginRight="11dp"
+    android:foreground="?attr/selectableItemBackground">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/image_plc"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_centerVertical="true"
+            android:scaleType="centerCrop"
+            android:padding="5dp"
+            android:layout_marginLeft="14dp"
+            android:layout_marginStart="14dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:src="@drawable/ic_iconfinder_icon" />
+
+    <TextView
+        android:id="@+id/tv_plc_item_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:textAppearance="?attr/textAppearanceListItem"
+        android:textColor="@color/black_1000"
+        android:textSize="16sp"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:paddingTop="5dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_alignTop="@+id/image_plc"
+        android:layout_toRightOf="@+id/image_plc"
+        android:layout_toEndOf="@+id/image_plc" />
+
+    <TextView
+        android:id="@+id/tv_plc_item_ip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:lines="1"
+        android:layout_marginRight="15dp"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:layout_below="@+id/tv_plc_item_name"
+        android:layout_alignLeft="@+id/tv_plc_item_name"
+        android:layout_alignStart="@+id/tv_plc_item_name" />
+
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/RelativeLayout01"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_plc_item_ip"
+        android:layout_alignLeft="@+id/tv_plc_item_ip"
+        android:layout_alignStart="@+id/tv_plc_item_ip">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tv_plc_item_rack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="20dp"
+            android:lines="1"
+            android:text="Rack: 1"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/tv_plc_item_slot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:text="Slot: 2"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>
+
+
+</android.support.v7.widget.CardView>
