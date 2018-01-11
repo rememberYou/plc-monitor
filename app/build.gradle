@@ -17,6 +17,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
+    }
 }
 
 dependencies {
@@ -28,14 +32,19 @@ dependencies {
     compile group: 'com.android.support', name: 'recyclerview-v7', version: '26.1.0'
     compile group: 'com.j256.ormlite', name: 'ormlite-android', version: '5.0'
     compile group: 'com.j256.ormlite', name: 'ormlite-core', version: '5.0'
+    compile group: 'com.j256.ormlite.cipher', name: 'ormlite-sqlcipher', version: '1.1', ext: 'aar'
     compile group: 'com.google.dagger', name: 'dagger', version: '2.13'
     compile group: 'com.takisoft.fix', name: 'preference-v7', version: '25.3.0.0'
+    compile group: 'io.reactivex.rxjava2', name: 'rxandroid', version: '2.0.1'
+    compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.1.7'
+    compile group: 'net.zetetic', name: 'android-database-sqlcipher', version: '3.5.9', ext: 'aar'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
+    compile group: 'org.apache.commons', name: 'commons-text', version: '1.2'
+    compile 'com.android.support:preference-v7:26.1.0'
+    compile 'com.android.support:preference-v14:26.1.0'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support:design:26.1.0'
-    compile 'com.android.support:preference-v7:26.1.0'
-    compile 'com.android.support:preference-v14:26.1.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
