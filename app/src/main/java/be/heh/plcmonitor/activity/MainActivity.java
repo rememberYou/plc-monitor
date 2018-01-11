@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017 Terencio Agozzino
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,15 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-import android.text.Html;
-import android.transition.Fade;
-import android.view.View;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
+import android.transition.Fade;
+import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import be.heh.plcmonitor.ApplicationComponent;
@@ -39,16 +40,21 @@ import be.heh.plcmonitor.R;
 import be.heh.plcmonitor.dao.UserDaoImpl;
 import be.heh.plcmonitor.database.DatabaseModule;
 import be.heh.plcmonitor.fragment.ConnectionFragment;
-import be.heh.plcmonitor.fragment.OverviewFragment;
-import be.heh.plcmonitor.fragment.SettingsFragment;
+import be.heh.plcmonitor.fragment.PlcsFragment;
+import be.heh.plcmonitor.fragment.UsersFragment;
+import be.heh.plcmonitor.preference.ControlLevelPreference;
+import be.heh.plcmonitor.preference.PillsPreferenceFragment;
+import be.heh.plcmonitor.preference.SettingsPreferenceFragment;
 import be.heh.plcmonitor.model.User;
-import be.heh.plcmonitor.widget.Message;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
-import javax.inject.Inject;
+import net.sqlcipher.database.SQLiteDatabase;
 
-import static android.support.design.widget.Snackbar.LENGTH_LONG;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
 
 /**
  * Main screen of the application.
@@ -61,12 +67,7 @@ public class MainActivity extends Activity
     /**
      * Request codes.
      */
-    public static final int INIT = 1;
-
-    /**
-     * Components.
-     */
-    ApplicationComponent applicationComponent;
+    public static final int LOGIN = 1;
 
     /**
      * Injections.
@@ -88,10 +89,23 @@ public class MainActivity extends Activity
      * UI references.
      */
     private MaterialDialog mAboutDialog;
+    private MenuItem mItemUsers;
+    private NavigationView mNavigationView;
     private TextView mEmailView;
     private TextView mNameView;
-    private View mCoordinatorLayoutView;
-    private NavigationView navigationView;
+    private TextView mProfileView;
+
+    /**
+     * Says whether or not a welcoming message needs to be sent out.
+     */
+    private boolean isNeedWelcome;
+
+    /**
+     * Welcoming message.
+     */
+    private String msgWelcome;
+
+    private List<Fragment> fragments;
 
     /**
      * Called when the activity is starting.
@@ -99,8 +113,8 @@ public class MainActivity extends Activity
      * @param savedInstanceState if the activity is being re-initialized after
      *                           previously being shut down then this Bundle
      *                           contains the data it most recently supplied in
-     *                           onSaveInstanceState(Bundle).
-     *                           Note: Otherwise it is null.
+     *                           onSaveInstanceState(Bundle)
+     *                           Note: Otherwise it is null
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,9 +122,12 @@ public class MainActivity extends Activity
         setupWindowAnimations();
         setContentView(R.layout.activity_main);
 
-        applicationComponent = DaggerApplicationComponent.builder()
-                .databaseModule(new DatabaseModule(this))
-                .build();
+        SQLiteDatabase.loadLibs(this);
+
+        ApplicationComponent applicationComponent =
+                DaggerApplicationComponent.builder()
+                        .databaseModule(new DatabaseModule(this))
+                        .build();
         applicationComponent.inject(this);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -121,12 +138,13 @@ public class MainActivity extends Activity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        mNavigationView = findViewById(R.id.nav_view);
+        mNavigationView.setNavigationItemSelectedListener(this);
 
-        View headerLayout = navigationView.getHeaderView(0);
+        View headerLayout = mNavigationView.getHeaderView(0);
         mEmailView = headerLayout.findViewById(R.id.tv_email);
         mNameView = headerLayout.findViewById(R.id.tv_name);
+        mProfileView = headerLayout.findViewById(R.id.tv_profile);
 
         MaterialDialog.Builder mTermsUseBuilder = new MaterialDialog.Builder(this)
                 .title(R.string.prompt_about)
@@ -135,34 +153,47 @@ public class MainActivity extends Activity
 
         mAboutDialog = mTermsUseBuilder.build();
 
-        mCoordinatorLayoutView = findViewById(R.id.snackbarPosition);
-
         sp = getSharedPreferences("login", MODE_PRIVATE);
         final boolean logged = sp.getBoolean("logged", false);
+
+        fragments = new ArrayList<>();
 
         if (logged) {
             user = new User(
                     sp.getString("firstName", ""),
                     sp.getString("lastName", ""),
                     sp.getString("email", ""),
-                    sp.getString("password", ""));
+                    sp.getString("password", ""),
+                    sp.getInt("permission", 0));
 
-            mNameView.setText(getString(R.string.prompt_name,
+            mNameView.setText(getString(R.string.prompt_user_name,
                     user.getFirstName().toUpperCase(),
                     user.getLastName().toUpperCase()));
             mEmailView.setText(user.getEmail());
 
-            Message.display(mCoordinatorLayoutView,
-                    Html.fromHtml(getString(R.string.message_welcome_back,
-                            user.getFirstName())),
-                    LENGTH_LONG);
-        } else {
-            startActivityForResult(new Intent(this, LoginActivity.class), INIT);
-        }
+            if (user.isAdmin()) {
+                mProfileView.setText(getString(R.string.prompt_profile_admin));
+            } else {
+                mProfileView.setText(getString(R.string.prompt_profile_user));
+            }
 
-        navigationView.setCheckedItem(R.id.nav_overview);
-        onNavigationItemSelected(navigationView.getMenu().getItem(1));
+            if (user.isAdmin()) {
+                Menu menu = mNavigationView.getMenu();
+                mItemUsers = menu.add(R.id.generalGroup, Menu.NONE, Menu.NONE, "Users");
+                mItemUsers.setIcon(R.drawable.ic_person_black_24dp);
+                mItemUsers.setCheckable(true);
+            }
+
+            isNeedWelcome = true;
+            msgWelcome = getString(R.string.message_welcome_back, user.getFirstName());
+
+            mNavigationView.setCheckedItem(R.id.nav_plc);
+            onNavigationItemSelected(mNavigationView.getMenu().findItem(R.id.nav_plc));
+        } else {
+            startActivityForResult(new Intent(this, LoginActivity.class), LOGIN);
+        }
     }
+
     /**
      * Specifies if an account has been logged.
      *
@@ -175,24 +206,33 @@ public class MainActivity extends Activity
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == INIT && resultCode == RESULT_OK) {
+        if (requestCode == LOGIN && resultCode == RESULT_OK) {
             user = new User(
                     sp.getString("firstName", ""),
                     sp.getString("lastName", ""),
                     sp.getString("email", ""),
-                    sp.getString("password", ""));
+                    sp.getString("password", ""),
+                    sp.getInt("permission", 0));
 
-            mNameView.setText(getString(R.string.prompt_name,
+            mNameView.setText(getString(R.string.prompt_user_name,
                     user.getFirstName(), user.getLastName()));
             mEmailView.setText(user.getEmail());
 
-            Message.display(mCoordinatorLayoutView,
-                    Html.fromHtml(getString(R.string.message_welcome,
-                            user.getFirstName())),
-                    LENGTH_LONG);
+            isNeedWelcome = true;
+            msgWelcome = getString(R.string.message_welcome, user.getFirstName());
 
-            navigationView.setCheckedItem(R.id.nav_overview);
-            onNavigationItemSelected(navigationView.getMenu().getItem(1));
+            if (user.isAdmin()) {
+                Menu menu = mNavigationView.getMenu();
+                mItemUsers = menu.add(R.id.generalGroup, Menu.NONE, Menu.NONE, "Users");
+                mItemUsers.setIcon(R.drawable.ic_person_black_24dp);
+                mItemUsers.setCheckable(true);
+                mProfileView.setText(getString(R.string.prompt_profile_admin));
+            } else {
+                mProfileView.setText(getString(R.string.prompt_profile_user));
+            }
+
+            mNavigationView.setCheckedItem(R.id.nav_plc);
+            onNavigationItemSelected(mNavigationView.getMenu().getItem(1));
         }
     }
 
@@ -202,6 +242,16 @@ public class MainActivity extends Activity
      */
     @Override
     public void onBackPressed() {
+        if (ControlLevelPreference.isRunning.get()) {
+            ControlLevelPreference.readThread.interrupt();
+            ControlLevelPreference.plcConnection.close();
+            ControlLevelPreference.isRunning.set(false);
+        } else if (PillsPreferenceFragment.isRunning.get()) {
+            PillsPreferenceFragment.readThread.interrupt();
+            PillsPreferenceFragment.plcConnection.close();
+            PillsPreferenceFragment.isRunning.set(false);
+        }
+
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -216,16 +266,18 @@ public class MainActivity extends Activity
      * @param item the selected item
      * @return true to display the item as the selected item; false otherwise
      */
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
         Fragment fragment = null;
         Class fragmentClass;
 
+        removeAddFragmentsForm();
+
         if (id == R.id.nav_connect) {
+            hideFragments(fragments);
+
             fragmentClass = ConnectionFragment.class;
 
             try {
@@ -234,52 +286,179 @@ public class MainActivity extends Activity
                 e.printStackTrace();
             }
 
-            getFragmentManager().beginTransaction()
-                    .replace(R.id.snackbarPosition, fragment)
-                    .commit();
-        } else if (id == R.id.nav_overview) {
-            fragmentClass = OverviewFragment.class;
+            fragments.add(fragment);
 
-            try {
-                fragment = (Fragment) fragmentClass.newInstance();
-            } catch (Exception e) {
-                e.printStackTrace();
+            getFragmentManager().beginTransaction()
+                    .add(R.id.snackbarPosition, fragment, "ConnectionFragment")
+                    .show(fragment)
+                    .commit();
+        } else if (id == R.id.nav_plc) {
+            Fragment plcFragment = getFragmentManager()
+                    .findFragmentByTag("PlcsFragment");
+
+            hideFragments(fragments);
+
+            if (plcFragment == null) {
+                fragmentClass = PlcsFragment.class;
+
+                try {
+                    fragment = (Fragment) fragmentClass.newInstance();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                if (isNeedWelcome) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("message", msgWelcome);
+                    fragment.setArguments(bundle);
+                    isNeedWelcome = false;
+                }
+
+                fragments.add(fragment);
+
+                getFragmentManager().beginTransaction()
+                        .add(R.id.snackbarPosition, fragment, "PlcsFragment")
+                        .show(fragment)
+                        .commit();
+            } else {
+                getFragmentManager().beginTransaction()
+                        .show(plcFragment)
+                        .commit();
             }
 
-            getFragmentManager().beginTransaction()
-                    .replace(R.id.snackbarPosition, fragment)
-                    .commit();
-        } else if (id == R.id.nav_station_info) {
+        } else if (id == Menu.NONE) {
+            Fragment usersFragment = getFragmentManager()
+                    .findFragmentByTag("UsersFragment");
 
-        } else if (id == R.id.nav_trend_view) {
+            hideFragments(fragments);
+
+            if (usersFragment == null) {
+                fragmentClass = UsersFragment.class;
+
+                try {
+                    fragment = (Fragment) fragmentClass.newInstance();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                fragments.add(fragment);
+
+                getFragmentManager().beginTransaction()
+                        .add(R.id.snackbarPosition, fragment, "UsersFragment")
+                        .show(fragment)
+                        .commit();
+            } else {
+                getFragmentManager().beginTransaction()
+                        .show(usersFragment)
+                        .commit();
+            }
+
         } else if (id == R.id.about) {
             mAboutDialog.show();
         } else if (id == R.id.nav_settings) {
-            fragmentClass = SettingsFragment.class;
+            Fragment settingsFragment = getFragmentManager()
+                    .findFragmentByTag("SettingsFragment");
 
-            try {
-                fragment = (Fragment) fragmentClass.newInstance();
-            } catch (Exception e) {
-                e.printStackTrace();
+            hideFragments(fragments);
+
+            if (settingsFragment == null) {
+                fragmentClass = SettingsPreferenceFragment.class;
+
+                try {
+                    fragment = (Fragment) fragmentClass.newInstance();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                fragments.add(fragment);
+
+                getFragmentManager().beginTransaction()
+                        .add(R.id.snackbarPosition, fragment, "SettingsFragment")
+                        .show(fragment)
+                        .commit();
+            } else {
+                getFragmentManager().beginTransaction()
+                        .show(settingsFragment)
+                        .commit();
             }
 
-            getFragmentManager().beginTransaction()
-                    .replace(R.id.snackbarPosition, fragment).commit();
         } else if (id == R.id.nav_sign_off) {
             signOff();
-            startActivityForResult(new Intent(MainActivity.this,
-                    LoginActivity.class), INIT);
-
-           // startActivity(new Intent(MainActivity.this,
-           //         LoginActivity.class));
-
-            Message.display(mCoordinatorLayoutView,
-                    getString(R.string.message_disconnect), LENGTH_LONG);
+            Intent intent = new Intent(MainActivity.this,
+                    LoginActivity.class);
+            intent.putExtra("signOff", true);
+            startActivityForResult(intent, LOGIN);
+            removeFragments(fragments);
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    /**
+     * Gets the list of fragments.
+     *
+     * @return the list of fragments
+     */
+    public List<Fragment> getFragments() { return fragments; }
+
+    /**
+     * Hides fragments in the stack.
+     *
+     * @param fragments the list of fragments to hide
+     */
+    private void hideFragments(List<Fragment> fragments) {
+        for (Fragment fragment : fragments) {
+            if (fragment.getTag().equals("ConnectionFragment")  ||
+                    fragment.getTag().equals("EditPlcFragment") ||
+                    fragment.getTag().equals("EditUserFragment")) {
+                getFragmentManager().beginTransaction()
+                        .remove(fragment).commit();
+                fragments.remove(fragment);
+            } else {
+                getFragmentManager().beginTransaction()
+                        .hide(fragment).commit();
+            }
+        }
+    }
+
+    /**
+     * Removes fragments in the stack.
+     *
+     * @param fragments the list of fragments to remove
+     */
+    private void removeFragments(List<Fragment> fragments) {
+        for (Fragment fragment : fragments) {
+            if (fragment != null) {
+                getFragmentManager().beginTransaction()
+                        .remove(fragment).commit();
+            }
+        }
+
+        fragments.clear();
+    }
+
+    /**
+     * Silly method to avoid that "AddUserFragment" and "AddPlcFragment" are
+     * still visible if the user changes fragment with the navigation view.
+     */
+    public void removeAddFragmentsForm() {
+        Fragment addUserFragment = getFragmentManager()
+                .findFragmentByTag("AddUserFragment");
+
+        Fragment addPlcFragment = getFragmentManager()
+                .findFragmentByTag("AddPlcFragment");
+
+        if (addUserFragment != null) {
+            getFragmentManager().beginTransaction()
+                    .remove(addUserFragment).commit();
+        }
+
+        if (addPlcFragment != null) {
+            getFragmentManager().beginTransaction()
+                    .remove(addPlcFragment).commit();
+        }
     }
 
     /**
@@ -295,6 +474,9 @@ public class MainActivity extends Activity
      * to be deleted asynchronously.
      */
     public void signOff() {
+        if (user.isAdmin()) {
+            mNavigationView.getMenu().removeItem(mItemUsers.getItemId());
+        }
         sp.edit().clear().apply();
     }
 }

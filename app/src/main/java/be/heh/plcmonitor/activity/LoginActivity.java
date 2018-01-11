@@ -16,39 +16,42 @@
 
 package be.heh.plcmonitor.activity;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.text.Html;
 import android.text.TextUtils;
 import android.transition.Fade;
-import android.view.KeyEvent;
+import android.util.Log;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import be.heh.plcmonitor.ApplicationComponent;
 import be.heh.plcmonitor.DaggerApplicationComponent;
 import be.heh.plcmonitor.R;
 import be.heh.plcmonitor.dao.UserDaoImpl;
 import be.heh.plcmonitor.database.DatabaseHelper;
 import be.heh.plcmonitor.database.DatabaseModule;
-import be.heh.plcmonitor.ApplicationComponent;
+import be.heh.plcmonitor.helper.Message;
+import be.heh.plcmonitor.helper.Progress;
 import be.heh.plcmonitor.model.User;
-import be.heh.plcmonitor.utils.Validator;
-import be.heh.plcmonitor.widget.Message;
-import be.heh.plcmonitor.widget.Progress;
+import be.heh.plcmonitor.util.Validator;
 
-import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
+import com.j256.ormlite.cipher.android.apptools.OrmLiteBaseActivity;
 
 import javax.inject.Inject;
+
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.observers.DisposableSingleObserver;
+import io.reactivex.schedulers.Schedulers;
 
 import static android.support.design.widget.Snackbar.LENGTH_LONG;
 
@@ -60,9 +63,14 @@ import static android.support.design.widget.Snackbar.LENGTH_LONG;
 public class LoginActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 
     /**
+     * Useful for debug to identify which class has logged.
+     */
+    private static final String TAG = LoginActivity.class.getSimpleName();
+
+    /**
      * Request codes.
      */
-    public static final int INIT = 1;
+    public static final int REGISTER = 1;
 
     /**
      * Components.
@@ -76,14 +84,14 @@ public class LoginActivity extends OrmLiteBaseActivity<DatabaseHelper> {
     UserDaoImpl userDaoImpl;
 
     /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
-    private UserLoginTask mAuthTask = null;
-
-    /**
      * Building a bundle to manage transitions between the activities.
      */
     private ActivityOptions options;
+
+    /**
+     * Saves the content of the user's session.
+     */
+    private SharedPreferences sp;
 
     /**
      * UI references.
@@ -100,8 +108,8 @@ public class LoginActivity extends OrmLiteBaseActivity<DatabaseHelper> {
      * @param savedInstanceState if the activity is being re-initialized after
      *                           previously being shut down then this Bundle
      *                           contains the data it most recently supplied in
-     *                           onSaveInstanceState(Bundle).
-     *                           Note: Otherwise it is null.
+     *                           onSaveInstanceState(Bundle)
+     *                           Note: Otherwise it is null
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,43 +125,41 @@ public class LoginActivity extends OrmLiteBaseActivity<DatabaseHelper> {
         mEmailView = findViewById(R.id.actv_login_email);
 
         mPasswordView = findViewById(R.id.et_login_password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
-                }
-                return false;
+        mPasswordView.setOnEditorActionListener((textView, id, keyEvent) -> {
+            if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
+                attemptLogin();
+                return true;
             }
+            return false;
         });
 
         mCoordinatorLayoutView = findViewById(R.id.snackbarPosition);
 
         Button mSignInButton = findViewById(R.id.btn_sign_in);
-        mSignInButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                attemptLogin();
-            }
-        });
+        mSignInButton.setOnClickListener(view -> attemptLogin());
 
         mLoginFormView = findViewById(R.id.scroll_login);
         mProgressView = findViewById(R.id.pg_login);
 
         TextView mRegisterView = findViewById(R.id.tv_register);
-        mRegisterView.setOnClickListener(new OnClickListener() {
-            @SuppressLint("RestrictedApi")
-            @Override
-            public void onClick(View v) {
-                mEmailView.setText("");
-                mPasswordView.setText("");
-                options = ActivityOptions.makeSceneTransitionAnimation(LoginActivity.this);
+        mRegisterView.setOnClickListener(view -> {
+            mEmailView.setText("");
+            mPasswordView.setText("");
+            options = ActivityOptions.makeSceneTransitionAnimation(LoginActivity.this);
 
-                startActivityForResult(new Intent(LoginActivity.this,
-                        RegisterActivity.class), INIT, options.toBundle());
-            }
+            startActivityForResult(new Intent(LoginActivity.this,
+                    RegisterActivity.class), REGISTER, options.toBundle());
         });
+
+        sp = getSharedPreferences("login", MODE_PRIVATE);
+
+        Bundle extras = getIntent().getExtras();
+
+        if (extras != null && extras.getBoolean("signOff")) {
+            Message.display(mCoordinatorLayoutView,
+                    Html.fromHtml(getString(R.string.message_disconnect)),
+                    LENGTH_LONG);
+        }
     }
 
     /**
@@ -168,9 +174,9 @@ public class LoginActivity extends OrmLiteBaseActivity<DatabaseHelper> {
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == INIT && resultCode == RESULT_OK) {
+        if (requestCode == REGISTER && resultCode == RESULT_OK) {
             Message.display(mCoordinatorLayoutView,
-                    Html.fromHtml(getString(R.string.prompt_successful_creation)),
+                    Html.fromHtml(getString(R.string.message_successful_user_creation)),
                     LENGTH_LONG);
         }
     }
@@ -187,17 +193,14 @@ public class LoginActivity extends OrmLiteBaseActivity<DatabaseHelper> {
      * presented and no actual login attempt is made.
      */
     private void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
-        }
 
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        String email = mEmailView.getText().toString().trim();
+        String password = mPasswordView.getText().toString().trim();
 
         boolean cancel = false;
         View focusView = null;
@@ -231,12 +234,94 @@ public class LoginActivity extends OrmLiteBaseActivity<DatabaseHelper> {
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            Progress.show(mLoginFormView, mProgressView,
-                    getResources().getInteger(android.R.integer.config_shortAnimTime),
-                    true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+            showProgress(true);
+
+            login(email, password)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWith(new DisposableSingleObserver<Boolean>() {
+
+                        /**
+                         * Notifies the SingleObserver with a single boolean
+                         * value and that the Single has finished sending
+                         * push-based notifications.
+                         *
+                         * @param success true if the user logged in; otherwise
+                         *                false
+                         */
+                        @Override
+                        public void onSuccess(Boolean success) {
+                            showProgress(false);
+
+                            if (success) {
+
+                                getUserByEmail(email)
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribeWith(new DisposableSingleObserver<User>() {
+
+                                            /**
+                                             * Notifies the SingleObserver with
+                                             * a single user value and that the
+                                             * Single has finished sending
+                                             * push-based notifications.
+                                             */
+                                            @Override
+                                            public void onSuccess(User user) {
+                                                buildUserSharedPreferences(user);
+                                            }
+
+                                            /**
+                                             * Called once if login registration
+                                             * 'throws' an exception.
+                                             *
+                                             * @param e the exception, not null
+                                             */
+                                            @Override
+                                            public void onError(@NonNull Throwable e) {
+                                                Log.e(TAG, "Unable to build " +
+                                                        "SharedPreferences for the user", e);
+                                            }
+
+                                        });
+
+                                setResult(Activity.RESULT_OK);
+                                finish();
+                                dispose();
+                            } else {
+                                mPasswordView.setError(getString(R.string.error_incorrect_password));
+                                mPasswordView.requestFocus();
+                            }
+                        }
+
+                        /**
+                         * Called once if login registration 'throws' an exception.
+                         *
+                         * @param e the exception, not null
+                         */
+                        @Override
+                        public void onError(@NonNull Throwable e) {
+                            Log.e(TAG, "Unable to login the user", e);
+                            showProgress(false);
+                        }
+                    });
         }
+    }
+
+    /**
+     * Commits the user preferences to the SharedPreferences object it is editing
+     *
+     * @param user the user to commits preferences to the SharedPreferences
+     */
+    public void buildUserSharedPreferences(User user) {
+        sp = getSharedPreferences("login", MODE_PRIVATE);
+        sp.edit().putInt("id", user.getId()).apply();
+        sp.edit().putString("firstName", user.getFirstName()).apply();
+        sp.edit().putString("lastName", user.getLastName()).apply();
+        sp.edit().putString("email", user.getEmail()).apply();
+        sp.edit().putString("password", user.getPassword()).apply();
+        sp.edit().putInt("permission", user.getPermission()).apply();
+        sp.edit().putBoolean("logged", true).apply();
     }
 
     /**
@@ -245,8 +330,39 @@ public class LoginActivity extends OrmLiteBaseActivity<DatabaseHelper> {
      * @param email the email address of the user
      * @return true if the email is registered; false otherwise
      */
-    private boolean isRegisteredEmail(String email) {
+    private Boolean isRegisteredEmail(String email) {
         return userDaoImpl.getUserByEmail(email) != null;
+    }
+
+    /**
+     * Emits either a single user value according to his email address.
+     *
+     * @return the new Single instance
+     */
+    public Single<User> getUserByEmail(String email) {
+        return Single.create(emitter -> emitter.onSuccess(userDaoImpl.getUserByEmail(email)));
+    }
+
+    /**
+     * Emits either a single successful value for the login of the user, or
+     * an error.
+     *
+     * @param email the email address of the user
+     * @param password password the password of the user
+     * @return the new Single instance
+     */
+    public Single<Boolean> login(String email, String password) {
+        return Single.create(emitter -> {
+            try {
+                // Simulate network access.
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            emitter.onSuccess(Validator.isValidConnection(
+                    userDaoImpl, email, password));
+        });
     }
 
     /**
@@ -258,91 +374,13 @@ public class LoginActivity extends OrmLiteBaseActivity<DatabaseHelper> {
     }
 
     /**
-     * Represents an asynchronous login task used to authenticate the user.
+     * Shows the progress UI and hides the login form.
+     *
+     * @param show true if the form is to be displayed; false otherwise
      */
-    @SuppressLint("StaticFieldLeak")
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
-        private final String email;
-        private final String password;
-
-        /**
-         * Main constructor of the user login task.
-         *
-         * @param email the email address of the user
-         * @param password the password of the user
-         */
-        UserLoginTask(String email, String password) {
-            this.email = email;
-            this.password = password;
-        }
-
-        /**
-         * Performs a computation on a background thread.
-         *
-         * @param params the parameters of the task
-         * @return the result, defined by the subclass of this task
-         */
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            return Validator.isValidConnection(userDaoImpl, email, password);
-        }
-
-        /**
-         * Runs on the UI thread after doInBackground(Params...).
-         *
-         * @param success the result of the operation computed by
-         *                doInBackground(Params...).
-         */
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            Progress.show(mLoginFormView, mProgressView,
-                    getResources().getInteger(android.R.integer.config_shortAnimTime),
-                    false);
-
-            if (success) {
-                User user = userDaoImpl.getUserByEmail(email);
-
-                SharedPreferences sp = getSharedPreferences("login", MODE_PRIVATE);
-                sp.edit().putInt("id", user.getId()).apply();
-                sp.edit().putString("firstName", user.getFirstName()).apply();
-                sp.edit().putString("lastName", user.getLastName()).apply();
-                sp.edit().putString("email", user.getEmail()).apply();
-                sp.edit().putString("password", user.getPassword()).apply();
-                sp.edit().putBoolean("logged", true).apply();
-
-                // If use finish(), it provide some issues when the user
-                // register himself with RegisterActivity and came back to
-                // LoginActivity because it will switch back to
-                // RegisterActivity instead of MainActivity.
-                setResult(Activity.RESULT_OK);
-                finish();
-                //startActivityForResult(new Intent(LoginActivity.this,
-                 //       MainActivity.class), INIT, options.toBundle());
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
-            }
-        }
-
-        /**
-         * Runs on the UI thread after cancel(boolean) is invoked and
-         * doInBackground(Params...) has finished.
-         */
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            Progress.show(mLoginFormView, mProgressView,
-                    getResources().getInteger(android.R.integer.config_shortAnimTime),
-                    false);
-        }
+    public void showProgress(boolean show) {
+        Progress.show(mLoginFormView, mProgressView,
+                getResources().getInteger(android.R.integer.config_shortAnimTime),
+                show);
     }
 }
