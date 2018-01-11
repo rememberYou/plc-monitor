@@ -1,0 +1,107 @@
+<android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="regulation">
+
+    <android.support.v7.preference.PreferenceCategory
+        android:title="PLC Informations">
+
+        <Preference
+            android:key="pref_plc"
+            android:title="PLC"
+            android:summary="S7‐1214C">
+        </Preference>
+
+        <Preference
+            android:key="pref_cpu_code"
+            android:title="CPU Code"
+            android:summary="0">
+        </Preference>
+
+        <Preference
+            android:key="pref_status"
+            android:title="Status"
+            android:summary="Disconnected">
+        </Preference>
+
+    </android.support.v7.preference.PreferenceCategory>
+
+
+    <android.support.v7.preference.PreferenceCategory
+        android:title="Valves">
+
+        <Preference
+            android:key="pref_water_level"
+            android:title="Water Level"
+            android:summary="Value: 0">
+        </Preference>
+
+        <Preference
+            android:key="pref_setpoint"
+            android:title="Setpoint"
+            android:summary="Value: 779">
+        </Preference>
+
+        <Preference
+            android:key="pref_manual"
+            android:title="Manual"
+            android:summary="Value: 88">
+        </Preference>
+
+        <Preference
+            android:key="pref_control_word"
+            android:title="Valve Control Word"
+            android:summary="Value: 0">
+        </Preference>
+    </android.support.v7.preference.PreferenceCategory>
+
+    <android.support.v7.preference.PreferenceCategory
+        android:title="Valves">
+
+        <SwitchPreference
+            android:clickable="false"
+            android:focusable="false"
+            android:key="switch_valve1"
+            android:title="Valve 1" />
+
+        <SwitchPreference
+            android:clickable="false"
+            android:focusable="false"
+            android:key="switch_valve2"
+            android:title="Valve 2" />
+
+        <SwitchPreference
+            android:clickable="false"
+            android:focusable="false"
+            android:key="switch_valve3"
+            android:title="Valve 3" />
+
+        <SwitchPreference
+            android:clickable="false"
+            android:focusable="false"
+            android:key="switch_valve4"
+            android:title="Valve 4" />
+    </android.support.v7.preference.PreferenceCategory>
+
+    <android.support.v7.preference.PreferenceCategory
+        android:title="Monitoring">
+
+        <SwitchPreference
+            android:clickable="false"
+            android:focusable="false"
+            android:key="switch_manual"
+            android:title="Manual/Auto" />
+
+        <SwitchPreference
+            android:clickable="false"
+            android:focusable="false"
+            android:key="switch_remote"
+            android:title="Remote Control" />
+
+    </android.support.v7.preference.PreferenceCategory>
+
+    <Preference
+        android:key="pref_connection"
+        android:title="DISCONNECTED"
+        android:summary="">
+    </Preference>
+
+</android.support.v7.preference.PreferenceScreen>

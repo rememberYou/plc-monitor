@@ -1,5 +1,5 @@
 <android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:key="test">
 
     <android.support.v7.preference.PreferenceCategory
         android:title="General">
@@ -41,8 +41,15 @@
         <android.support.v7.preference.EditTextPreference
             android:key="password"
             android:title="Password"
-            android:summary="Should be a number password input (it is now!)"
-            android:dialogMessage="This is the dialog\'s message" />
+            android:summary="********"
+            android:dialogMessage="Be careful, if you enter an invalid password,
+                                   you will not be able to log in again to
+                                   your account." />
+
+        <Preference
+            android:key="delete_account"
+            android:title="Delete my Account">
+        </Preference>
 
     </android.support.v7.preference.PreferenceCategory>
 

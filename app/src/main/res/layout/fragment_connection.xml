@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_alignParentBottom="true"
+    android:layout_centerHorizontal="true"
+    android:id="@+id/snackbarPosition"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin">
+    android:padding="@dimen/activity_vertical_margin">
 
     <!-- Connection progress -->
     <ProgressBar
@@ -42,7 +40,7 @@
                     android:maxLength="255"
                     android:inputType="text"
                     android:layout_marginTop="10dp"
-                    android:hint="@string/prompt_plc_ip"
+                    android:hint="@string/prompt_ip"
                     android:id="@+id/txtConnectIp" />
 
             </android.support.design.widget.TextInputLayout>
@@ -58,7 +56,7 @@
                     android:maxLength="15"
                     android:ems="10"
                     android:layout_marginTop="10dp"
-                    android:hint="@string/prompt_plc_rack"
+                    android:hint="@string/prompt_rack"
                     android:id="@+id/txtConnectRack"/>
 
             </android.support.design.widget.TextInputLayout>
@@ -74,7 +72,7 @@
                     android:maxLength="6"
                     android:ems="10"
                     android:layout_marginTop="10dp"
-                    android:hint="@string/prompt_plc_slot"
+                    android:hint="@string/prompt_slot"
                     android:id="@+id/txtConnectSlot"/>
 
             </android.support.design.widget.TextInputLayout>
@@ -86,10 +84,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/action_connect"
+                android:elevation="50dp"
                 android:textStyle="bold"
-                android:background="@color/primary"
+                android:background="@drawable/btn_ripple"
                 android:textColor="@color/primary_text"/>
         </LinearLayout>
 
     </ScrollView>
-</LinearLayout>
+</android.support.design.widget.CoordinatorLayout>

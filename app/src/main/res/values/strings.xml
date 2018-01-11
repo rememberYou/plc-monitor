@@ -1,12 +1,73 @@
 <resources>
+
+    <!-- Strings related to the application name-->
     <string name="app_name">PLCMonitor</string>
 
+    <!-- Strings related to buttons -->
+    <string name="action_add_plc">Add PLC</string>
+    <string name="action_add_user">Add User</string>
     <string name="action_back">Back</string>
-
-    <!-- Strings related to login/register -->
+    <string name="action_connect">Connect</string>
+    <string name="action_edit_plc">Edit PLC</string>
+    <string name="action_edit_user">Edit User</string>
     <string name="action_register">Register</string>
     <string name="action_sign_in">Sign in</string>
 
+    <!-- Strings related to dialogs -->
+    <string name="dialog_about">
+        <![CDATA[
+            <h5><font color="#26A69A">1. Introduction</font></h5>
+            <p>
+                PLCMonitor is an application for remote monitoring and control
+                of various industrial processes.
+            </p>
+            <p>
+                This application was developed by Terencio Agozzino, licensed
+                under the Apache License, Version 2.0.
+            </p>
+            <p>
+                Free of you to contribute to the application on GitHub: <br>
+                (<a href="https://github.com/rememberYou/plcmonitor" alt="GitHub link>
+                    <font color="#FF4081">https://github.com/rememberYou/plc-monitor</font>
+                 </a>)
+            </p>
+            <h5><font color="#26A69A">2. Connection to a PLC</font></h5>
+            <p>
+                The connection to a PLC required to enter three parameters: <br>
+
+                1. IP address (e.g. <strong>10.1.0.120</strong>) <br>
+                2. Rack (e.g. <strong>1</strong>) <br>
+                3. Slot (e.g. <strong>1</strong>)
+            </p>
+            <p>
+                Until now, the connection is <font color="#FF4081">only</font>
+                available for Siemens PLCs and industrial processes that are
+                already in the default list.
+            </p>
+            <h5><font color="#26A69A">3. Overview of PLC</font></h5>
+            <p>
+                The overview allows you to easily manage your PLCs by changing
+                their various connection settings, logging in to them again
+                without entering the connection credentials or simply deleting them.
+            </p>
+        ]]>
+    </string>
+    <string name="dialog_account_delete">
+        Please be aware that if you delete your account, all data, privileges
+        and PLCs associated with it will be deleted.
+    </string>
+    <string name="dialog_user_admin">
+        Please be aware that if you grant administrator rights to a user, the user
+        can change values in various PLCs and promote other users.
+    </string>
+    <string name="dialog_user_delete">
+        Please be aware that if you delete this account, all data, privileges
+        and PLCs associated with it will be deleted.
+    </string>
+    <string name="dialog_plc_delete">
+        Please be aware that if you delete this PLC, all data associated with
+        it will be deleted.
+    </string>
     <string name="dialog_privacy_policy">
         <![CDATA[
             <p>
@@ -64,110 +125,130 @@
         ]]>
     </string>
 
+    <!-- Strings related to errors fields -->
     <string name="error_field_required">This field is required</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_incorrect_password_confirm">The password doesn\'t match</string>
     <string name="error_incorrect_email">This email doesn\'t exist</string>
+    <string name="error_invalid_db_amount">This data block amount is invalid</string>
+    <string name="error_invalid_db_number">This data block number is invalid</string>
+    <string name="error_invalid_db_offset">This data b lock offset is invalid</string>
     <string name="error_invalid_email">This email address is invalid</string>
-    <string name="error_invalid_firstname">This first name is invalid</string>
-    <string name="error_invalid_lastname">This last name is invalid</string>
-    <string name="error_invalid_password">This password must contain at least 4 characters</string>
+    <string name="error_invalid_first_name">This first name is invalid</string>
+    <string name="error_invalid_ip">This IP address is invalid</string>
+    <string name="error_invalid_last_name">This last name is invalid</string>
+    <string name="error_invalid_password">This password must contain at least 8 characters</string>
+    <string name="error_invalid_rack">Th is rack must be an integer</string>
+    <string name="error_invalid_slot">This slot must be an integer</string>
     <string name="error_invalid_term_privacy">You must accept the Terms of Use and Privacy Policy</string>
     <string name="error_unique_email">This email address is already registered</string>
 
-    <string name="message_disconnect">Account disconnected with success!</string>
+    <!-- Strings related to messages displays by Snackbar -->
+    <string name="message_disconnect">
+        <![CDATA[
+            Account disconnected with <font color="#b2dfdb">success</font>!
+        ]]>
+    </string>
+    <string name="message_failure_connection">
+        <![CDATA[
+            The PLC connection <font color="#ff5252">failed</font>!
+        ]]>
+    </string>
+    <string name="message_failure_delete">
+        <![CDATA[
+            You must first give the <font color="#b2dfdb">permissions</font>
+            to another user!
+        ]]>
+    </string>
+    <string name="message_failure_settings">
+        <![CDATA[
+            Update <font color="#FF4081">failed</font>: %s
+        ]]>
+    </string>
+    <string name="message_missing_functionnality">
+        <![CDATA[
+            This feature is not <font color="#b2dfdb">yet</font> available
+        ]]>
+    </string>
+    <string name="message_missing_network">
+        <![CDATA[
+            Attempt to connect <font color="#ff5252">failed</font>!
+        ]]>
+    </string>
+    <string name="message_no_connection">Not yet available!</string>
+    <string name="message_successful_plc_creation">
+        <![CDATA[
+            PLC created with <font color="#b2dfdb">success</font>!
+        ]]>
+    </string>
+    <string name="message_successful_plc_edited">
+        <![CDATA[
+            PLC edited with <font color="#b2dfdb">success</font>!
+        ]]>
+    </string>
+    <string name="message_successful_plc_delete">
+        <![CDATA[
+            PLC deleted with <font color="#b2dfdb">success</font>!
+        ]]>
+    </string>
+    <string name="message_successful_user_creation">
+        <![CDATA[
+            Account created with <font color="#b2dfdb">success</font>!
+        ]]>
+    </string>
+    <string name="message_successful_user_delete">
+        <![CDATA[
+            User deleted with <font color="#b2dfdb">success</font>!
+        ]]>
+    </string>
+    <string name="message_successful_user_update">
+        <![CDATA[
+           Information updated with <font color="#b2dfdb">success</font>!
+        ]]>
+    </string>
     <string name="message_welcome">
         <![CDATA[
             Hello, <font color="#b2dfdb"> %s!</font>
         ]]>
     </string>
-
-    <string name="prompt_about">About</string>
-    <string name="prompt_before_terms_use">I agree to</string>
-    <string name="prompt_between_terms_privacy">and </string>
-    <string name="prompt_email">E-Mail Address</string>
-    <string name="prompt_firstname">First Name</string>
-    <string name="prompt_lastname">Last Name</string>
-    <string name="prompt_password">Password</string>
-    <string name="prompt_password_confirm">Confirm Password</string>
-    <string name="prompt_privacy_policy">Privacy Policy</string>
-    <string name="prompt_register">Not account yet? Sign up!</string>
-    <string name="prompt_sign_in">Already register? Sign in!</string>
-    <string name="prompt_successful_creation">
+    <string name="message_welcome_back">
         <![CDATA[
-            Account created with <font color="#b2dfdb">success!</font>
-        ]]>
-    </string>
-    <string name="prompt_terms_use">Terms of Use</string>
-
-    <!-- Strings related to main -->
-    <string name="dialog_about">
-        <![CDATA[
-            <h5><font color="#26A69A">1. Introduction</font></h5>
-            <p>
-                PLCMonitor is an application for remote monitoring and control
-                of various industrial processes.
-            </p>
-            <p>
-                This application was developed by Terencio Agozzino, licensed
-                under the Apache License, Version 2.0.
-            </p>
-            <p>
-                Free of you to contribute to the application on GitHub: <br>
-                (<a href="https://github.com/rememberYou/plcmonitor" alt="GitHub link>
-                    <font color="#26A69A">https://github.com/rememberYou/plc-monitor</font>
-                 </a>)
-            </p>
-            <h5><font color="#26A69A">2. Connection to a PLC</font></h5>
-            <p>
-                The connection to a PLC required to enter three parameters: <br>
-
-                1. IP address (e.g. <strong>10.1.0.120</strong>) <br>
-                2. Rack (e.g. <strong>1</strong>) <br>
-                3. Slot (e.g. <strong>1</strong>) <br>
-            </p>
-            <h5><font color="#26A69A">3. Overview of PLC</font></h5>
-            <p>
-                The overview allows you to easily manage your PLCs by changing
-                their various connection settings, logging in to them again
-                without entering the connection credentials or simply deleting them.
-            </p>
-            <h5><font color="#26A69A">4. Station Info</font></h5>
-            <p>
-               This is where you will be able to control your industrial
-               processes by starting or stopping the PLC, execute various
-               functions or retrieve details about it.
-            </p>
-            <h5><font color="#26A69A">5. Trend View</font></h5>
-            <p>
-               Allows industrial process monitoring by providing analog signal
-               analysis of the PLC.
-            </p>
+            Welcome back, <font color="#b2dfdb">%s!</font>
         ]]>
     </string>
 
-    <!-- Strings related to plc -->
-    <string name="prompt_plc_title_dialog">Add PLC</string>
-    <string name="prompt_plc_name">Name</string>
-    <string name="prompt_plc_ip">IP</string>
-    <string name="prompt_plc_rack">Rack</string>
-    <string name="prompt_plc_slot">Slot</string>
-
-    <!-- Strings related to connection -->
-    <string name="prompt_connection">Connection</string>
-    <string name="action_connect">Connect</string>
-    <string name="error_invalid_ip">This IP address is invalid</string>
-    <string name="error_invalid_rack">This rack must be an integer</string>
-    <string name="error_invalid_slot">This slot must be an integer</string>
-
+    <!-- Strings related to navigation -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="prompt_name">%1$s %2$s</string>
+    <!-- Strings related to prompt fields -->
+    <string name="prompt_about">About</string>
+    <string name="prompt_adapter_ip">IP: %s</string>
+    <string name="prompt_adapter_rack">Rack: %d</string>
+    <string name="prompt_adapter_slot">Slot: %d</string>
+    <string name="prompt_before_terms_use">I agree to</string>
+    <string name="prompt_between_terms_privacy">and </string>
+    <string name="prompt_connection">Connection</string>
+    <string name="prompt_db_amount">Amount</string>
+    <string name="prompt_db_data">Data</string>
+    <string name="prompt_db_number">DB Number</string>
+    <string name="prompt_db_offset">Offset</string>
+    <string name="prompt_email">E-Mail Address</string>
+    <string name="prompt_first_name">First Name</string>
+    <string name="prompt_last_name">Last Name</string>
+    <string name="prompt_ip">IP</string>
+    <string name="prompt_password">Password</string>
+    <string name="prompt_password_confirm">Confirm Password</string>
+    <string name="prompt_plc_add">Add PLC</string>
+    <string name="prompt_plc_name">Name</string>
+    <string name="prompt_privacy_policy">Privacy Policy</string>
+    <string name="prompt_profile_admin">Administrator</string>
+    <string name="prompt_profile_user">Standard</string>
+    <string name="prompt_rack">Rack</string>
+    <string name="prompt_register">Not account yet? Sign up!</string>
+    <string name="prompt_sign_in">Already register? Sign in!</string>
+    <string name="prompt_slot">Slot</string>
+    <string name="prompt_terms_use">Terms of Use</string>
+    <string name="prompt_user_name">%1$s %2$s</string>
 
-    <string name="message_welcome_back">
-        <![CDATA[
-            Welcome back, <font color="#b2dfdb">%s</font>
-        ]]>
-    </string>
 </resources>

@@ -1,5 +1,5 @@
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/card_view2"
+    android:id="@+id/card_view"
     android:layout_width="match_parent"
     android:layout_height="80dp"
     android:layout_marginTop="2dp"
@@ -14,9 +14,9 @@
         android:gravity="center">
 
         <ImageView
-            android:id="@+id/image_plc"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
+            android:id="@+id/image_user"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
             android:layout_centerVertical="true"
             android:scaleType="centerCrop"
             android:padding="5dp"
@@ -25,10 +25,10 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:src="@drawable/ic_item_plc" />
+            android:src="@drawable/ic_item_user" />
 
         <TextView
-            android:id="@+id/tv_plc_item_name"
+            android:id="@+id/tv_user_item_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
@@ -40,12 +40,12 @@
             android:paddingTop="5dp"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
-            android:layout_alignTop="@+id/image_plc"
-            android:layout_toRightOf="@+id/image_plc"
-            android:layout_toEndOf="@+id/image_plc" />
+            android:layout_alignTop="@+id/image_user"
+            android:layout_toRightOf="@+id/image_user"
+            android:layout_toEndOf="@+id/image_user" />
 
         <ImageButton
-            android:id="@+id/ib_plc"
+            android:id="@+id/ib_user"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -55,58 +55,35 @@
             android:background="@drawable/ic_if_button_switch_vertical_24dp"
             android:src="@drawable/ic_if_button_switch_vertical_24dp" />
 
+
         <TextView
-            android:id="@+id/tv_plc_item_ip"
+            android:id="@+id/tv_user_item_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:lines="1"
             android:layout_marginRight="15dp"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:layout_below="@+id/tv_plc_item_name"
-            android:layout_alignLeft="@+id/tv_plc_item_name"
-            android:layout_alignStart="@+id/tv_plc_item_name" />
-
-        <RelativeLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/RelativeLayout01"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tv_plc_item_ip"
-            android:layout_alignLeft="@+id/tv_plc_item_ip"
-            android:layout_alignStart="@+id/tv_plc_item_ip">
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/tv_plc_item_rack"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_marginRight="20dp"
-                android:lines="1"
-                android:text="Rack: 1"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
-
-            <TextView
-                android:id="@+id/tv_plc_item_slot"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:lines="1"
-                android:text="Slot: 2"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
-            </LinearLayout>
-
-        </RelativeLayout>
+            android:layout_below="@+id/tv_user_item_name"
+            android:layout_alignLeft="@+id/tv_user_item_name"
+            android:layout_alignStart="@+id/tv_user_item_name" />
 
         <TextView
-            android:id="@+id/tv_plc_item_position"
+            android:id="@+id/tv_user_item_profile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:layout_marginRight="15dp"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:layout_below="@+id/tv_user_item_email"
+            android:layout_alignLeft="@+id/tv_user_item_email"
+            android:layout_alignStart="@+id/tv_user_item_email" />
+
+        <TextView
+            android:id="@+id/tv_user_item_position"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignStart="@+id/image_plc"
-            android:layout_alignTop="@+id/image_plc" />
+            android:layout_alignStart="@+id/image_user"
+            android:layout_alignTop="@+id/ib_user" />
 
     </RelativeLayout>
 

@@ -1,0 +1,134 @@
+<android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="pills">
+
+    <android.support.v7.preference.PreferenceCategory
+        android:title="PLC Informations">
+
+        <Preference
+            android:key="pref_plc"
+            android:title="PLC"
+            android:summary="S7‐1516 2DPPN">
+        </Preference>
+
+        <Preference
+            android:key="pref_cpu_code"
+            android:title="CPU Code"
+            android:summary="0">
+        </Preference>
+
+        <Preference
+            android:key="pref_status"
+            android:title="Status"
+            android:summary="Disconnected">
+        </Preference>
+
+    </android.support.v7.preference.PreferenceCategory>
+
+    <android.support.v7.preference.PreferenceCategory
+        android:title="Conditioning Pills">
+
+        <ListPreference
+            android:entries="@array/listOptions"
+            android:entryValues="@array/listValues"
+            android:key="list_pills"
+            android:summary="Request: 0 Pills"
+            android:title="" />
+
+        <SwitchPreference
+            android:clickable="false"
+            android:focusable="false"
+            android:key="switch_passing_pills"
+            android:title="Passing Pills" />
+
+    </android.support.v7.preference.PreferenceCategory>
+
+    <android.support.v7.preference.PreferenceCategory
+        android:title="Pills Bottles">
+
+        <SwitchPreference
+            android:clickable="false"
+            android:focusable="false"
+            android:key="switch_arrival_bottles"
+            android:title="Arrival of Empty Bottles" />
+
+        <Preference
+            android:key="pref_produced_bottles"
+            android:title="Produced Bottles"
+            android:summary="Value: 0">
+        </Preference>
+
+        <Preference
+            android:key="pref_filled_bottles"
+            android:title="Filled Bottles"
+            android:summary="Value: 0">
+        </Preference>
+
+        <Preference
+            android:key="pref_reset"
+            android:title="Reset Bottle Counter"
+            android:summary="">
+        </Preference>
+
+    </android.support.v7.preference.PreferenceCategory>
+
+    <android.support.v7.preference.PreferenceCategory
+        android:title="Motors">
+
+        <SwitchPreference
+            android:clickable="false"
+            android:focusable="false"
+            android:key="switch_motor_conveyor"
+            android:title="Roller Conveyor" />
+
+        <SwitchPreference
+            android:clickable="false"
+            android:focusable="false"
+            android:key="switch_motor_distribution"
+            android:title="Distribution Pills" />
+    </android.support.v7.preference.PreferenceCategory>
+
+    <android.support.v7.preference.PreferenceCategory
+        android:title="Sensors">
+
+        <SwitchPreference
+            android:clickable="false"
+            android:focusable="false"
+            android:key="switch_sensor_filling"
+            android:title="Filling Sensor" />
+
+        <SwitchPreference
+            android:clickable="false"
+            android:focusable="false"
+            android:key="switch_sensor_bottle_closure"
+            android:title="Closing Bottle Sensor" />
+    </android.support.v7.preference.PreferenceCategory>
+
+    <android.support.v7.preference.PreferenceCategory
+        android:title="Cylinder">
+
+        <SwitchPreference
+            android:clickable="false"
+            android:focusable="false"
+            android:key="switch_cylinder_closure"
+            android:title="Bottle Closure Cylinder" />
+
+    </android.support.v7.preference.PreferenceCategory>
+
+    <android.support.v7.preference.PreferenceCategory
+        android:title="Monitoring">
+
+        <SwitchPreference
+            android:clickable="false"
+            android:focusable="false"
+            android:key="switch_remote"
+            android:title="Remote Control" />
+
+    </android.support.v7.preference.PreferenceCategory>
+
+    <Preference
+        android:key="pref_connection"
+        android:title="DISCONNECTED"
+        android:summary="">
+    </Preference>
+
+</android.support.v7.preference.PreferenceScreen>

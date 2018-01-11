@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="listOptions">
+        <item>Request: 5 Pills</item>
+        <item>Request: 10 Pills</item>
+        <item>Request: 15 Pills</item>
+    </string-array>
+    <string-array name="listValues">
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+    </string-array>
+</resources>

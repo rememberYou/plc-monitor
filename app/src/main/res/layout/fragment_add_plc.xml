@@ -1,15 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_alignParentBottom="true"
+    android:layout_centerHorizontal="true"
+    android:id="@+id/snackbarPosition"
+    android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:padding="5dp">
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin">
+
+    <LinearLayout
+        android:id="@+id/ll_login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:errorEnabled="true">
+        android:layout_height="wrap_content">
 
         <EditText
             android:layout_width="match_parent"
@@ -25,8 +37,7 @@
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:errorEnabled="true">
+        android:layout_height="wrap_content">
 
         <EditText
             android:layout_width="match_parent"
@@ -35,15 +46,14 @@
             android:maxLength="15"
             android:ems="10"
             android:layout_marginTop="10dp"
-            android:hint="@string/prompt_plc_ip"
+            android:hint="@string/prompt_ip"
             android:id="@+id/txtPlcIp"/>
 
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:errorEnabled="true">
+        android:layout_height="wrap_content">
 
         <EditText
             android:layout_width="match_parent"
@@ -52,15 +62,14 @@
             android:maxLength="6"
             android:ems="10"
             android:layout_marginTop="10dp"
-            android:hint="@string/prompt_plc_rack"
+            android:hint="@string/prompt_rack"
             android:id="@+id/txtPlcRack"/>
 
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:errorEnabled="true">
+        android:layout_height="wrap_content">
 
         <EditText
             android:layout_width="match_parent"
@@ -69,7 +78,7 @@
             android:ems="10"
             android:maxLength="6"
             android:layout_marginTop="10dp"
-            android:hint="@string/prompt_plc_slot"
+            android:hint="@string/prompt_slot"
             android:id="@+id/txtPlcSlot"/>
 
     </android.support.design.widget.TextInputLayout>
@@ -80,9 +89,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="@string/action_register"
+        android:text="@string/action_add_plc"
+        android:elevation="50dp"
         android:textStyle="bold"
-        android:background="@color/primary"
+        android:background="@drawable/btn_ripple"
         android:textColor="@color/primary_text"/>
 
-</LinearLayout>
+    </LinearLayout>
+</RelativeLayout>
