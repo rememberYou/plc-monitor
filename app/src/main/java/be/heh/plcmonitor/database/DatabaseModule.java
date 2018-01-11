@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017 Terencio Agozzino
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@ package be.heh.plcmonitor.database;
 
 import android.content.Context;
 
+import be.heh.plcmonitor.dao.DataBlockDaoImpl;
 import be.heh.plcmonitor.dao.PlcDaoImpl;
+import be.heh.plcmonitor.dao.PlcUserDaoImpl;
 import be.heh.plcmonitor.dao.UserDaoImpl;
 
 import dagger.Module;
@@ -36,16 +38,19 @@ import javax.inject.Singleton;
 @Module
 public class DatabaseModule {
 
-    private Context context;
+    /**
+     * The context of the application.
+     */
+    private Context mContext;
 
     /**
      * Main constructor that allows to instantiate the module of the database
      * that allows the search in the available methods for possible instance
      * providers, using the context of the application.
      *
-     * @param context the context of the application
+     * @param mContext the context of the application
      */
-    public DatabaseModule(Context context) { this.context = context; }
+    public DatabaseModule(Context mContext) { this.mContext = mContext; }
 
     /**
      * Provides the only instance of the context of the application using
@@ -55,7 +60,7 @@ public class DatabaseModule {
      */
     @Provides
     @Singleton
-    public Context provideContext() { return context; }
+    public Context provideContext() { return mContext; }
 
     /**
      * Provides the only instance of the DatabaseHelper using Singleton.
@@ -70,6 +75,24 @@ public class DatabaseModule {
     }
 
     /**
+     * Provides the only instance of the DataBlockImpl using Singleton.
+     *
+     * @param databaseHelper the database helper
+     * @return the only instance of the DataBlockImpl
+     */
+    @Provides
+    @Singleton
+    public DataBlockDaoImpl provideDataBlockDaoImpl(DatabaseHelper databaseHelper) {
+        try {
+            return new DataBlockDaoImpl(databaseHelper);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
      * Provides the only instance of the PlcDaoImpl using Singleton.
      *
      * @param databaseHelper the database helper
@@ -80,6 +103,24 @@ public class DatabaseModule {
     public PlcDaoImpl providePlcDaoImpl(DatabaseHelper databaseHelper) {
         try {
             return new PlcDaoImpl(databaseHelper);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
+     * Provides the only instance of the PlcUserDaoImpl using Singleton.
+     *
+     * @param databaseHelper the database helper
+     * @return the only instance of the PlcUserDaoImpl
+     */
+    @Provides
+    @Singleton
+    public PlcUserDaoImpl providePlcUserDaoImpl(DatabaseHelper databaseHelper) {
+        try {
+            return new PlcUserDaoImpl(databaseHelper);
         } catch (SQLException e) {
             e.printStackTrace();
         }
