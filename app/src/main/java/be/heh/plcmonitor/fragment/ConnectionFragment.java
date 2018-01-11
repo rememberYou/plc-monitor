@@ -19,6 +19,7 @@ package be.heh.plcmonitor.fragment;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,10 +27,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import be.heh.plcmonitor.ApplicationComponent;
+import be.heh.plcmonitor.DaggerApplicationComponent;
 import be.heh.plcmonitor.R;
-import be.heh.plcmonitor.utils.Validator;
-import be.heh.plcmonitor.widget.Progress;
+import be.heh.plcmonitor.database.DatabaseModule;
+import be.heh.plcmonitor.helper.Message;
+import be.heh.plcmonitor.util.Connectivity;
+import be.heh.plcmonitor.util.Validator;
 
+import static android.support.design.widget.Snackbar.LENGTH_LONG;
 import static org.apache.commons.lang3.StringUtils.isNumeric;
 
 /**
@@ -40,13 +46,17 @@ import static org.apache.commons.lang3.StringUtils.isNumeric;
 public class ConnectionFragment extends Fragment {
 
     /**
+     * Manage the connection with PLC.
+     */
+    private Connectivity mConnectivity;
+
+    /**
      * UI references.
      */
-    private TextView mPlcIpView;
-    private TextView mPlcRackView;
-    private TextView mPlcSlotView;
-    private View mProgressView;
-    private View mConnectionFormView;
+    public static TextView mPlcIpView;
+    public static TextView mPlcRackView;
+    public static TextView mPlcSlotView;
+    private View mCoordinatorLayoutView;
 
     /**
      * Called when the connection fragment is instantiate.
@@ -76,21 +86,16 @@ public class ConnectionFragment extends Fragment {
      */
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        mConnectivity = new Connectivity(getActivity());
 
         mPlcIpView = view.findViewById(R.id.txtConnectIp);
         mPlcRackView = view.findViewById(R.id.txtConnectRack);
         mPlcSlotView = view.findViewById(R.id.txtConnectSlot);
 
         Button mConnectionButton = view.findViewById(R.id.btn_connect);
-        mConnectionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                attemptConnect();
-            }
-        });
+        mConnectionButton.setOnClickListener(v -> attemptConnect());
 
-        mConnectionFormView = view.findViewById(R.id.scroll_connection);
-        mProgressView = view.findViewById(R.id.pg_connection);
+        mCoordinatorLayoutView = view.findViewById(R.id.snackbarPosition);
     }
 
     /**
@@ -149,12 +154,14 @@ public class ConnectionFragment extends Fragment {
             // There was an error; don't attempt connect and focus the first
             // form field with an error.
             focusView.requestFocus();
+        } else if (mConnectivity.isConnected()) {
+            Message.display(mCoordinatorLayoutView,
+                    Html.fromHtml(getString(R.string.message_missing_functionnality)),
+                    LENGTH_LONG);
         } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the PLC connection attempt.
-            Progress.show(mConnectionFormView, mProgressView,
-                    getResources().getInteger(android.R.integer.config_shortAnimTime),
-                    true);
+            Message.display(mCoordinatorLayoutView,
+                    Html.fromHtml(getString(R.string.message_missing_network)),
+                    LENGTH_LONG);
         }
     }
 }
