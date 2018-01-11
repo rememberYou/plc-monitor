@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017 Terencio Agozzino
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,13 @@
 
 package be.heh.plcmonitor.dao;
 
-import com.j256.ormlite.stmt.QueryBuilder;
-import com.j256.ormlite.stmt.Where;
-
 import be.heh.plcmonitor.database.DatabaseHelper;
 import be.heh.plcmonitor.model.Plc;
+import be.heh.plcmonitor.model.User;
+
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.Where;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -32,14 +34,19 @@ import java.util.List;
  */
 public class PlcDaoImpl extends GenericDaoImpl<Plc> implements PlcDao {
 
+    private PreparedQuery<Plc> plcsForUserQuery = null;
+    private PlcUserDaoImpl plcUserDaoImpl;
+
     /**
      * Default constructor that retrieves the DAO of the OrmLite implementation
      * of PLC objects.
      *
      * @param databaseHelper the database helper
+     * @throws SQLException when DatabaseHelper class contains invalid SQL annotations
      */
     public PlcDaoImpl(DatabaseHelper databaseHelper) throws SQLException {
         super(databaseHelper.getPlcDao());
+        plcUserDaoImpl = new PlcUserDaoImpl(databaseHelper);
     }
 
     /**
@@ -142,6 +149,26 @@ public class PlcDaoImpl extends GenericDaoImpl<Plc> implements PlcDao {
             whereClause.like(Plc.NAME_FIELD_NAME, "%" + subString + "%");
 
             return dao.query(statementBuilder.prepare());
+        } catch (SQLException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Retrieves a list of PLC objects based on one user.
+     *
+     * @param user the given user
+     * @return the list of PLC according to the given user
+     */
+    @Override
+    public List<Plc> getPlcsByUser(User user) {
+        try {
+            if (plcsForUserQuery == null) {
+                plcsForUserQuery = plcUserDaoImpl.makePlcsForUserQuery();
+            }
+
+            plcsForUserQuery.setArgumentHolderValue(0, user);
+            return dao.query(plcsForUserQuery);
         } catch (SQLException e) {
             return null;
         }

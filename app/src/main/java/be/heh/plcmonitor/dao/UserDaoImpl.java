@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017 Terencio Agozzino
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,10 @@
 package be.heh.plcmonitor.dao;
 
 import be.heh.plcmonitor.database.DatabaseHelper;
+import be.heh.plcmonitor.model.Plc;
 import be.heh.plcmonitor.model.User;
+
+import com.j256.ormlite.stmt.PreparedQuery;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -29,14 +32,19 @@ import java.util.List;
  */
 public class UserDaoImpl extends GenericDaoImpl<User> implements UserDao {
 
+    private PreparedQuery<User> usersForPlcQuery = null;
+    private PlcUserDaoImpl plcUserDaoImpl;
+
     /**
      * Default constructor that retrieves the DAO of the OrmLite implementation
      * of User objects.
      *
      * @param databaseHelper the database helper
+     * @throws SQLException when DatabaseHelper class contains invalid SQL annotations
      */
     public UserDaoImpl(DatabaseHelper databaseHelper) throws SQLException {
         super(databaseHelper.getUserDao());
+        plcUserDaoImpl = new PlcUserDaoImpl(databaseHelper);
     }
 
     /**
@@ -102,5 +110,25 @@ public class UserDaoImpl extends GenericDaoImpl<User> implements UserDao {
         }
 
         return users;
+    }
+
+    /**
+     * Retrieves a list of user objects based on one PLC.
+     *
+     * @param plc the given PLC
+     * @return the list of users according to the given plc
+     */
+    @Override
+    public List<User> getUsersByPlc(Plc plc) {
+        try {
+            if (usersForPlcQuery == null) {
+                usersForPlcQuery = plcUserDaoImpl.makeUsersForPlcQuery();
+            }
+
+            usersForPlcQuery.setArgumentHolderValue(0, plc);
+            return dao.query(usersForPlcQuery);
+        } catch (SQLException e) {
+            return null;
+        }
     }
 }

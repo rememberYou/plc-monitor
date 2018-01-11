@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017 Terencio Agozzino
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package be.heh.plcmonitor.dao;
 
+import be.heh.plcmonitor.model.Plc;
 import be.heh.plcmonitor.model.User;
 
 import java.util.List;
@@ -50,4 +51,12 @@ public interface UserDao extends GenericDao<User> {
      * @return the list of users according to the given last name.
      */
     List<User> getUsersByLastName(String lastName);
+
+    /**
+     * Retrieves a list of user objects based on one PLC.
+     *
+     * @param plc the given PLC
+     * @return the list of users according to the given plc
+     */
+    List<User> getUsersByPlc(Plc plc);
 }

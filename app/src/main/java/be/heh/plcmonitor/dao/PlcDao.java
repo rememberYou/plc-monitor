@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017 Terencio Agozzino
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@
 package be.heh.plcmonitor.dao;
 
 import be.heh.plcmonitor.model.Plc;
+import be.heh.plcmonitor.model.User;
 
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -66,4 +68,12 @@ public interface PlcDao extends GenericDao<Plc> {
      * @return the list of PLC according to the given substring
      */
     List<Plc> getPlcBySubString(String subString);
+
+    /**
+     * Retrieves a list of PLC objects based on one user.
+     *
+     * @param user the given user
+     * @return the list of PLC according to the given user
+     */
+    List<Plc> getPlcsByUser(User user) throws SQLException;
 }
