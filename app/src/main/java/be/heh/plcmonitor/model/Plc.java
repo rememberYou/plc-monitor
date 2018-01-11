@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017 the original Terencio Agozzino
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,18 +35,20 @@ public class Plc implements Parcelable {
     /**
      * Database field names.
      */
+    public static final String ID_FIELD_NAME = "id";
     public static final String IP_FIELD_NAME = "ip";
     public static final String NAME_FIELD_NAME = "name";
     public static final String RACK_FIELD_NAME= "rack";
     public static final String SLOT_FIELD_NAME = "slot";
+    public static final String DATA_BLOCK_ID_FIELD_NAME = "data_block_id";
 
     /**
      * Properties with ORMLite annotations for the database.
      */
-    @DatabaseField(generatedId = true)
+    @DatabaseField(generatedId = true, columnName = ID_FIELD_NAME)
     private int id;
 
-    @DatabaseField(columnName = NAME_FIELD_NAME, unique = true, canBeNull = false)
+    @DatabaseField(columnName = NAME_FIELD_NAME, canBeNull = false)
     private String name;
 
     @DatabaseField(columnName = IP_FIELD_NAME, canBeNull = false)
@@ -57,6 +59,10 @@ public class Plc implements Parcelable {
 
     @DatabaseField(columnName = SLOT_FIELD_NAME, canBeNull = false)
     private int slot;
+
+    @DatabaseField(foreign = true, columnName = DATA_BLOCK_ID_FIELD_NAME,
+            index = true, foreignAutoRefresh = true)
+    private DataBlock dataBlock;
 
     /**
      * Default constructor of the Plc class needed for ORMLite.
@@ -70,12 +76,17 @@ public class Plc implements Parcelable {
      * @param ip the IP address of the PLC
      * @param rack the rack of the PLC
      * @param slot the slot of the PLC
+     * @param dataBlock the data block of the PLC
      */
-    public Plc(String name, String ip, int rack, int slot) {
+    public Plc(String name, String ip, int rack, int slot,
+               DataBlock dataBlock) {
         this.name = name;
         this.ip = ip;
         this.rack = rack;
         this.slot = slot;
+        if (dataBlock != null) {
+            this.dataBlock = dataBlock;
+        }
     }
 
     /**
@@ -92,7 +103,22 @@ public class Plc implements Parcelable {
         this.ip = source.readString();
         this.rack = source.readInt();
         this.slot = source.readInt();
+        this.dataBlock = (DataBlock) source.readValue(DataBlock.class.getClassLoader());
     }
+
+    /**
+     * Gets the data block of the PLC.
+     *
+     * @return the data block of the PLC
+     */
+    public DataBlock getDataBlock() { return dataBlock; }
+
+    /**
+     * Sets the data block of the PLC.
+     *
+     * @param dataBlock the data block of the PLC
+     */
+    public void setDataBlock(DataBlock dataBlock) { this.dataBlock = dataBlock; }
 
     /**
      * Gets the identifier of the PLC.
@@ -164,14 +190,28 @@ public class Plc implements Parcelable {
      */
     public void setSlot(int slot) { this.slot = slot; }
 
+    /**
+     * Specifies whether two PLCs are the same.
+     *
+     * @param plc the other PLC
+     * @return true if the identifier of the PLCs are the same; false otherwise
+     */
+    public boolean equals(Plc plc) { return this.id == plc.id; }
+
+    /**
+     * Specifies the representation of the PLC.
+     *
+     * @return the details of the PLC
+     */
     @Override
     public String toString() {
         return "Plc{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", ip='" + ip + '\'' +
-                ", rack=" + rack +
-                ", slot=" + slot +
+                ", rack=" + rack + '\'' +
+                ", slot=" + slot + '\'' +
+                ", dataBlock=" + dataBlock + '\'' +
                 '}';
     }
 
@@ -206,6 +246,7 @@ public class Plc implements Parcelable {
         dest.writeString(ip);
         dest.writeInt(rack);
         dest.writeInt(slot);
+        dest.writeParcelable(dataBlock, flags);
     }
 
     /**

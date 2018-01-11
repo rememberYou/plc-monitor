@@ -18,9 +18,10 @@ package be.heh.plcmonitor.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import com.j256.ormlite.field.DatabaseField;
+
+import java.util.ArrayList;
 
 /**
  * A base model class for user.
@@ -37,14 +38,16 @@ public class User implements Parcelable {
      * Database field names.
      */
     public static final String EMAIL_FIELD_NAME = "email";
-    public static final String FIRST_NAME_FIELD_NAME = "firstname";
-    public static final String LAST_NAME_FIELD_NAME= "lastname";
+    public static final String FIRST_NAME_FIELD_NAME = "first_name";
+    public static final String ID_FIELD_NAME = "id";
+    public static final String LAST_NAME_FIELD_NAME= "last_name";
     public static final String PASSWORD_FIELD_NAME = "password";
+    public static final String PERMISSION_FIELD_NAME = "permission";
 
     /**
      * Properties with ORMLite annotations for the database.
      */
-    @DatabaseField(generatedId = true)
+    @DatabaseField(generatedId = true, columnName = ID_FIELD_NAME)
     private int id;
 
     @DatabaseField(columnName = FIRST_NAME_FIELD_NAME, canBeNull = false)
@@ -53,11 +56,16 @@ public class User implements Parcelable {
     @DatabaseField(columnName = LAST_NAME_FIELD_NAME, canBeNull = false)
     private String lastName;
 
-    @DatabaseField(columnName = EMAIL_FIELD_NAME, unique = true, index = true, canBeNull = false)
+    @DatabaseField(columnName = EMAIL_FIELD_NAME, unique = true, index = true,
+            canBeNull = false)
     private String email;
 
     @DatabaseField(columnName = PASSWORD_FIELD_NAME, canBeNull = false)
     private String password;
+
+    @DatabaseField(columnName = PERMISSION_FIELD_NAME, defaultValue = "0",
+            canBeNull = false)
+    private int permission;
 
     /**
      * Default constructor of the User class needed for ORMLite.
@@ -78,6 +86,25 @@ public class User implements Parcelable {
         this.lastName = lastName;
         this.email = email;
         this.password = password;
+        this.permission = 0;
+    }
+
+    /**
+     * Constructor of the User class allowing to assign a permission to the user.
+     *
+     * @param firstName the first name of the user
+     * @param lastName the last name of the user
+     * @param email the email address of the user
+     * @param password the password of the user
+     * @param permission the permission of the user
+     */
+    public User(String firstName, String lastName, String email,
+                String password, int permission) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.permission = permission;
     }
 
     /**
@@ -94,7 +121,15 @@ public class User implements Parcelable {
         this.lastName = source.readString();
         this.email = source.readString();
         this.password = source.readString();
+        this.permission = source.readInt();
     }
+
+    /**
+     * Specifies if a user is an administrator or not.
+     *
+     * @return true if the user is an administrator; false otherwise
+     */
+    public boolean isAdmin() { return permission == 1; }
 
     /**
      * Gets the identifier of the user.
@@ -185,6 +220,32 @@ public class User implements Parcelable {
     }
 
     /**
+     * Gets the permission of the user.
+     *
+     * @return the permission of the user
+     */
+    public int getPermission() {
+        return permission;
+    }
+
+    /**
+     * Sets the permission of the user.
+     *
+     * @param permission the permission of the user
+     */
+    public void setPermission(int permission) {
+        this.permission = permission;
+    }
+
+    /**
+     * Specifies whether two users are the same.
+     *
+     * @param user the other user
+     * @return true if the identifier of the users are the same; false otherwise
+     */
+    public boolean equals(User user) { return this.id == user.id; }
+
+    /**
      * Specifies the representation of the user.
      *
      * @return the details of the user
@@ -197,6 +258,7 @@ public class User implements Parcelable {
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
+                ", permission='" + permission + '\'' +
                 '}';
     }
 
@@ -231,6 +293,7 @@ public class User implements Parcelable {
         dest.writeString(lastName);
         dest.writeString(email);
         dest.writeString(password);
+        dest.writeInt(permission);
     }
 
     /**
