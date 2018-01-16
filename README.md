@@ -76,8 +76,8 @@ generated key for each device downloading the application.
 Dagger has been used for code generation and various annotations. This also
 facilitates the creation of reusable and interchangeable modules.
 
-The DatabaseModule class allows to provide the different DAO (Data Access
-Object) models and the ApplicationComponent class provides the database module
+The `DatabaseModule` class allows to provide the different DAO (Data Access
+Object) models and the `ApplicationComponent` class provides the database module
 to the specified fragments and activities.
 
 --------------------
