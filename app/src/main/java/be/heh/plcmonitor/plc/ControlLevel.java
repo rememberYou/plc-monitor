@@ -39,7 +39,7 @@ public class ControlLevel {
      *
      * @return true if the configuration is manual; false otherwise
      */
-    public boolean isManual() { return S7.GetBitAt(data, 0,5); }
+    public boolean isManual() { return S7.GetBitAt(data, 0, 5); }
 
     /**
      * Checks if valve 1 is open.
@@ -74,7 +74,7 @@ public class ControlLevel {
      *
      * @return true if the PLC is remotely controllable; false otherwise
      */
-    public boolean isRemotelyControllable() { return S7.GetBitAt(data, 0,6); }
+    public boolean isRemotelyControllable() { return S7.GetBitAt(data, 0, 6); }
 
     /**
      * Get the manual value.

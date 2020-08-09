@@ -120,7 +120,7 @@ public class PillsConditioning {
      *
      * @return true if the PLC is remotely controllable; false otherwise
      */
-    public boolean isRemotelyControllable() { return S7.GetBitAt(data, 1,6); }
+    public boolean isRemotelyControllable() { return S7.GetBitAt(data, 1, 6); }
 
     /**
      * Checks the status of the conveyor motor
